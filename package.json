@@ -16,9 +16,18 @@
     "react-native-web": "~0.13.12"
   },
   "devDependencies": {
+    "@babel/cli": "^7.13.16",
     "@babel/core": "^7.9.0",
+    "@babel/preset-react": "^7.13.13",
+    "@babel/preset-typescript": "^7.13.0",
+    "@dooboo/eslint-config": "^0.7.2",
     "@types/react": "~16.9.35",
     "@types/react-native": "~0.63.2",
+    "babel-preset-expo": "^8.3.0",
+    "babel-preset-react-native": "^4.0.1",
+    "eslint": "^7.24.0",
+    "metro-react-native-babel-preset": "^0.66.0",
+    "prettier": "^2.2.1",
     "typescript": "~4.0.0"
   },
   "private": true

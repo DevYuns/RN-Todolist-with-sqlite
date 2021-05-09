@@ -1,13 +1,17 @@
-node_modules/
-.expo/
+.DS_Store
+dist/
+node_modules/**/*
+.expo/*
 npm-debug.*
 *.jks
-*.p8
 *.p12
 *.key
 *.mobileprovision
+.jest
+coverage/
 *.orig.*
 web-build/
+web-report/
 
-# macOS
-.DS_Store
+package-lock.json
+yarn-error*

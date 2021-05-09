@@ -4,6 +4,7 @@ module.exports = (api) => {
   return {
     presets: [
       '@babel/preset-react',
+      {runtime: 'automatic', importSource: '@emotion/react'},
       'babel-preset-expo',
       '@babel/preset-typescript',
     ],

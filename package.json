@@ -15,7 +15,8 @@
     "react": "16.13.1",
     "react-dom": "16.13.1",
     "react-native": "https://github.com/expo/react-native/archive/sdk-41.0.0.tar.gz",
-    "react-native-web": "~0.13.12"
+    "react-native-web": "~0.13.12",
+    "react-responsive": "^8.2.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.13.16",
@@ -26,6 +27,7 @@
     "@emotion/babel-plugin": "^11.3.0",
     "@types/react": "~16.9.35",
     "@types/react-native": "~0.63.2",
+    "@types/react-responsive": "^8.0.2",
     "babel-preset-expo": "^8.3.0",
     "babel-preset-react-native": "^4.0.1",
     "eslint": "^7.24.0",

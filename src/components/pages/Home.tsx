@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import styled from '@emotion/native';
-import {Image, ScrollView, TouchableOpacity} from 'react-native';
+import {ScrollView} from 'react-native';
 import Task from '../uis/Task';
 
 const Container = styled.View`
@@ -26,6 +26,7 @@ const Title = styled.Text`
   font-size: 36px;
   line-height: 49px;
   font-family: ChauPhilomeneOne;
+  color: ${({theme}) => theme.titleText};
 `;
 
 const TextInputWrapper = styled.View`
@@ -48,6 +49,7 @@ const ListTitle = styled.Text`
   font-size: 18px;
   line-height: 25px;
   margin-bottom: 20px;
+  font-family: ChauPhilomeneOne;
 `;
 
 const Home: React.FC = () => {
@@ -67,8 +69,8 @@ const Home: React.FC = () => {
       <ListWrapper>
         <ListTitle>Upcoming To-do's</ListTitle>
         <ScrollView>
-          <Task />
-          <Task />
+          <Task text="Task1" isClicked={false} onToggle={() => {}} />
+          <Task text="Task2" isClicked={false} onToggle={() => {}} />
         </ScrollView>
       </ListWrapper>
     </Container>

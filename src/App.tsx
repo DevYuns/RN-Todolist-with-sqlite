@@ -4,6 +4,9 @@ import {useFonts} from 'expo-font';
 import RootViewWrapper from './components/RootViewWrapper';
 import {useAssets} from 'expo-asset';
 import Icons from './utils/Icons';
+import {initFbt} from './utils/fbt';
+
+initFbt();
 
 const App: React.FC = () => {
   const [assets] = useAssets(Icons);

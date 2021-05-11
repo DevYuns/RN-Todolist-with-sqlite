@@ -1,12 +1,6 @@
-import React, {useState} from 'react';
+import React, {useCallback, useState} from 'react';
 import styled from '@emotion/native';
-import {
-  FlatList,
-  Image,
-  Keyboard,
-  ScrollView,
-  TouchableOpacity,
-} from 'react-native';
+import {FlatList, Image, Keyboard, TouchableOpacity} from 'react-native';
 import Todo from '../uis/Todo';
 import {IC_ADD} from '../../utils/Icons';
 import type {TodoType} from '../uis/Todo';
@@ -65,39 +59,68 @@ const Home: React.FC = () => {
   const [todos, setTodos] = useState<TodoType[]>([]);
   const [todoText, setTodoText] = useState<string>('');
 
-  const handleAddTodo = (): void => {
+  const onToggleModal = (item: TodoType): void => {
+    const index = todos.findIndex((el) => el.id === item.id);
+
+    const nextState = produce(todos, (draft) => {
+      draft[index] = item;
+      draft[index].isModalOpened = !item.isModalOpened;
+    });
+
+    setTodos(nextState);
+  };
+
+  const onInsert = useCallback((): void => {
     Keyboard.dismiss();
 
     const nextState = produce(todos, (draft) => {
       draft.push({
         id: Date.now().toString(),
+        isModalOpened: false,
         iscompleted: false,
-        initialText: todoText,
-        text: '',
+        text: todoText,
       });
     });
 
     setTodos(nextState);
     setTodoText('');
-  };
+  }, [todoText, todos]);
 
-  const onDelete = (item: TodoType): void => {
+  const onDelete = useCallback(
+    (item: TodoType): void => {
+      const index = todos.findIndex((el) => el.id === item.id);
+
+      const nextState = produce(todos, (draft) => {
+        draft[index] = item;
+        draft.splice(index, 1);
+      });
+
+      setTodos(nextState);
+    },
+    [todos],
+  );
+
+  const onCompleted = useCallback(
+    (item: TodoType): void => {
+      const index = todos.findIndex((el) => el.id === item.id);
+
+      const nextState = produce(todos, (draft) => {
+        draft[index] = item;
+        draft[index].iscompleted = !item.iscompleted;
+      });
+
+      setTodos(nextState);
+    },
+    [todos],
+  );
+
+  const onEdited = (item: TodoType, str: string): void => {
     const index = todos.findIndex((el) => el.id === item.id);
 
     const nextState = produce(todos, (draft) => {
       draft[index] = item;
-      draft.splice(index, 1);
-    });
-
-    setTodos(nextState);
-  };
-
-  const onCompleted = (item: TodoType): void => {
-    const index = todos.findIndex((el) => el.id === item.id);
-
-    const nextState = produce(todos, (draft) => {
-      draft[index] = item;
-      draft[index].iscompleted = !item.iscompleted;
+      draft[index].text = str;
+      draft[index].isModalOpened = !item.isModalOpened;
     });
 
     setTodos(nextState);
@@ -105,41 +128,39 @@ const Home: React.FC = () => {
 
   return (
     <Container>
-      <ScrollView>
-        <TitleWrapper>
-          <Title>What's your plan?</Title>
-        </TitleWrapper>
-        <TextInputWrapper>
-          <StyledTextInput
-            value={todoText}
-            onChangeText={(text) => setTodoText(text)}
-          />
-          <TouchableOpacity onPress={handleAddTodo}>
-            <Image source={IC_ADD} />
-          </TouchableOpacity>
-        </TextInputWrapper>
-        <ListWrapper>
-          <ListTitle>Upcoming To-do's</ListTitle>
-          <FlatList
-            style={{alignSelf: 'stretch'}}
-            keyExtractor={(item) => item.id}
-            contentContainerStyle={{
-              alignSelf: 'stretch',
-              paddingHorizontal: 16,
-            }}
-            data={todos}
-            renderItem={({item}) => (
-              <Todo
-                todos={item}
-                onCompleted={() => onCompleted(item)}
-                onEditPressed={() => {}}
-                onChangeText={() => {}}
-                onDelete={() => onDelete(item)}
-              />
-            )}
-          />
-        </ListWrapper>
-      </ScrollView>
+      <TitleWrapper>
+        <Title>What's your plan?</Title>
+      </TitleWrapper>
+      <TextInputWrapper>
+        <StyledTextInput
+          value={todoText}
+          onChangeText={(text) => setTodoText(text)}
+        />
+        <TouchableOpacity onPress={onInsert}>
+          <Image source={IC_ADD} />
+        </TouchableOpacity>
+      </TextInputWrapper>
+      <ListWrapper>
+        <ListTitle>Upcoming To-do's</ListTitle>
+        <FlatList
+          style={{alignSelf: 'stretch'}}
+          keyExtractor={(_, index) => index.toString()}
+          contentContainerStyle={{
+            alignSelf: 'stretch',
+            paddingHorizontal: 16,
+          }}
+          data={todos}
+          renderItem={({item}) => (
+            <Todo
+              todoItem={item}
+              onCompleted={() => onCompleted(item)}
+              onEdit={onEdited}
+              onDelete={() => onDelete(item)}
+              onToggleModal={() => onToggleModal(item)}
+            />
+          )}
+        />
+      </ListWrapper>
     </Container>
   );
 };

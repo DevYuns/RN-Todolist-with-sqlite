@@ -15,3 +15,8 @@ web-report/
 
 package-lock.json
 yarn-error*
+
+# fbt
+.enum_manifest.json
+.source_strings.json
+.src_manifest.json

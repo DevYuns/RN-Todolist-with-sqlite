@@ -1,0 +1,15 @@
+{
+  "fb-locale": "ko_KR",
+  "translations": {
+    "70144ebef2da60f2120c7f741b2a0a3d": {
+      "tokens": [],
+      "types": [],
+      "translations": [
+        {
+          "translation": "오늘의 계획은 무엇인가요?",
+          "variations": {}
+        }
+      ]
+    }
+  }
+}

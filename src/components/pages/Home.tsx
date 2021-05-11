@@ -5,6 +5,7 @@ import Todo from '../uis/Todo';
 import {IC_ADD} from '../../utils/Icons';
 import type {TodoType} from '../uis/Todo';
 import produce from 'immer';
+import {fbt} from 'fbt';
 
 const Container = styled.View`
   flex: 1;
@@ -115,6 +116,8 @@ const Home: React.FC = () => {
   );
 
   const onEdited = (item: TodoType, str: string): void => {
+    Keyboard.dismiss();
+
     const index = todos.findIndex((el) => el.id === item.id);
 
     const nextState = produce(todos, (draft) => {
@@ -129,7 +132,7 @@ const Home: React.FC = () => {
   return (
     <Container>
       <TitleWrapper>
-        <Title>What's your plan?</Title>
+        <Title>{fbt("What's your plan?", "what's your plan?")}</Title>
       </TitleWrapper>
       <TextInputWrapper>
         <StyledTextInput

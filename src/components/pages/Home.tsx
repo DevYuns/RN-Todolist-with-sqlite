@@ -60,18 +60,23 @@ const Home: React.FC = () => {
   const [todos, setTodos] = useState<TodoType[]>([]);
   const [todoText, setTodoText] = useState<string>('');
 
-  const onToggleModal = (item: TodoType): void => {
-    const index = todos.findIndex((el) => el.id === item.id);
+  const onToggleModal = useCallback(
+    (item: TodoType): void => {
+      const index = todos.findIndex((el) => el.id === item.id);
 
-    const nextState = produce(todos, (draft) => {
-      draft[index] = item;
-      draft[index].isModalOpened = !item.isModalOpened;
-    });
+      const nextState = produce(todos, (draft) => {
+        draft[index] = item;
+        draft[index].isModalOpened = !item.isModalOpened;
+      });
 
-    setTodos(nextState);
-  };
+      setTodos(nextState);
+    },
+    [todos],
+  );
 
   const onInsert = useCallback((): void => {
+    if (!todoText) return;
+
     Keyboard.dismiss();
 
     const nextState = produce(todos, (draft) => {
@@ -83,8 +88,8 @@ const Home: React.FC = () => {
       });
     });
 
-    setTodos(nextState);
     setTodoText('');
+    setTodos(nextState);
   }, [todoText, todos]);
 
   const onDelete = useCallback(
@@ -115,19 +120,22 @@ const Home: React.FC = () => {
     [todos],
   );
 
-  const onEdited = (item: TodoType, str: string): void => {
-    Keyboard.dismiss();
+  const onEdited = useCallback(
+    (item: TodoType, str: string): void => {
+      Keyboard.dismiss();
 
-    const index = todos.findIndex((el) => el.id === item.id);
+      const index = todos.findIndex((el) => el.id === item.id);
 
-    const nextState = produce(todos, (draft) => {
-      draft[index] = item;
-      draft[index].text = str;
-      draft[index].isModalOpened = !item.isModalOpened;
-    });
+      const nextState = produce(todos, (draft) => {
+        draft[index] = item;
+        draft[index].text = str;
+        draft[index].isModalOpened = !item.isModalOpened;
+      });
 
-    setTodos(nextState);
-  };
+      setTodos(nextState);
+    },
+    [todos],
+  );
 
   return (
     <Container>

@@ -1,6 +1,13 @@
+import * as SQLite from 'expo-sqlite';
 import React, {useCallback, useState} from 'react';
 import styled from '@emotion/native';
-import {FlatList, Image, Keyboard, TouchableOpacity} from 'react-native';
+import {
+  FlatList,
+  Image,
+  Keyboard,
+  TouchableOpacity,
+  Platform,
+} from 'react-native';
 import Todo from '../uis/Todo';
 import {IC_ADD} from '../../utils/Icons';
 import type {TodoType} from '../uis/Todo';
@@ -56,9 +63,61 @@ const ListTitle = styled.Text`
   font-family: ChauPhilomeneOne;
 `;
 
+const openDatabase = (): SQLite.WebSQLDatabase | any => {
+  if (Platform.OS === 'web')
+    return {
+      transaction: () => {
+        return {
+          executeSql: () => {},
+        };
+      },
+    };
+
+  const db = SQLite.openDatabase('db.db');
+
+  return db;
+};
+
+export const db = openDatabase();
+
 const Home: React.FC = () => {
   const [todos, setTodos] = useState<TodoType[]>([]);
   const [todoText, setTodoText] = useState<string>('');
+
+  React.useEffect(() => {
+    db.transaction((tx) => {
+      tx.executeSql(
+        'select * from items where done = ?;',
+        [],
+        (_, {rows: {_array}}) => setTodos(_array),
+      );
+    });
+  }, []);
+
+  React.useEffect(() => {
+    db.transaction((tx) => {
+      tx.executeSql(
+        'create table if not exists items (id integer primary key not null, done int, value text);',
+      );
+    });
+  }, []);
+
+  const add = (text): any => {
+    // is text empty?
+    if (text === null || text === '') return false;
+
+    db.transaction(
+      (tx) => {
+        tx.executeSql('insert into items (done, value) values (0, ?)', [text]);
+
+        tx.executeSql('select * from items', [], (_, {rows}) =>
+          console.log(JSON.stringify(rows)),
+        );
+      },
+      null,
+      null,
+    );
+  };
 
   const onToggleModal = useCallback(
     (item: TodoType): void => {

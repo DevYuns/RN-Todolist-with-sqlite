@@ -1,38 +1,19 @@
 import * as SQLite from 'expo-sqlite';
+import {Platform} from 'react-native';
 
-const db = SQLite.openDatabase('db.db');
+const openDatabase = (): SQLite.WebSQLDatabase | any => {
+  if (Platform.OS === 'web')
+    return {
+      transaction: () => {
+        return {
+          executeSql: () => {},
+        };
+      },
+    };
 
-export const fetchSql = async <T>(
-  sqlStatement: string,
-  args: any[] | undefined,
-): Promise<T[]> => {
-  return new Promise((resolve) => {
-    db.transaction((tx) => {
-      tx.executeSql(
-        sqlStatement,
-        args,
-        (_, result) => {
-          resolve(Array.from(result.rows as any) as T[]);
-        },
-        (_, error): boolean => {
-          console.warn(error);
-          resolve([]);
+  const db = SQLite.openDatabase('db.db');
 
-          return false;
-        },
-      );
-    });
-  });
+  return db;
 };
 
-const getTodos = async (): Promise<any> =>
-  await fetchSql('select * from todos', []);
-
-export const database = {
-  getTodos,
-  // getTodos,
-  // insertTodo,
-  // setupDatabaseAsync,
-  // setupTodosAsync,
-  // dropDatabaseTablesAsync,
-};
+const db = openDatabase();

@@ -60,13 +60,10 @@ const ListTitle = styled.Text`
 const Home: React.FC = () => {
   const [todos, setTodos] = useState<TodoType[]>([]);
   const [todoText, setTodoText] = useState<string>('');
-  const {getAllTodos} = useDatabase();
 
-  const textTodos = (): void => {
-    if (getAllTodos) getAllTodos();
-  };
+  const {dbTodos} = useDatabase();
 
-  console.log('홈 안이다', textTodos());
+  console.log('홈 투두', dbTodos);
 
   const onToggleModal = useCallback(
     (item: TodoType): void => {

@@ -6,6 +6,7 @@ import {IC_ADD} from '../../utils/Icons';
 import type {TodoType} from '../uis/Todo';
 import produce from 'immer';
 import {fbt} from 'fbt';
+import {useDatabase} from '../../providers/DatabaseProvider';
 
 const Container = styled.View`
   flex: 1;
@@ -59,6 +60,10 @@ const ListTitle = styled.Text`
 const Home: React.FC = () => {
   const [todos, setTodos] = useState<TodoType[]>([]);
   const [todoText, setTodoText] = useState<string>('');
+
+  const {dbTodos} = useDatabase();
+
+  console.log('홈 투두', dbTodos);
 
   const onToggleModal = useCallback(
     (item: TodoType): void => {

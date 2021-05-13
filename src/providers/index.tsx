@@ -1,6 +1,7 @@
 import React from 'react';
 
-import {ThemeProvider, ThemeType} from '../providers/ThemeProvider';
+import {ThemeProvider, ThemeType} from './ThemeProvider';
+import {DatabaseProvider} from './DatabaseProvider';
 
 interface Props {
   initialThemeType?: ThemeType;
@@ -10,7 +11,7 @@ interface Props {
 const RootProvider: React.FC<Props> = ({initialThemeType, children}) => {
   return (
     <ThemeProvider initialThemeType={initialThemeType}>
-      {children}
+      <DatabaseProvider>{children}</DatabaseProvider>
     </ThemeProvider>
   );
 };

@@ -5,6 +5,7 @@ import RootViewWrapper from './components/RootViewWrapper';
 import {useAssets} from 'expo-asset';
 import Icons from './utils/Icons';
 import {initFbt} from './utils/fbt';
+import {useDatabase} from './providers/DatabaseProvider';
 
 initFbt();
 
@@ -15,15 +16,19 @@ const App: React.FC = () => {
     ChauPhilomeneOne: require('../assets/fonts/ChauPhilomeneOne-Regular.ttf'),
   });
 
-  if (!assets) return null;
+  const {isDBLoadingComplete} = useDatabase();
 
-  if (!fontLoaded) return null;
+  if (!isDBLoadingComplete || !assets || !fontLoaded) return null;
 
+  return <RootViewWrapper />;
+};
+
+const RootApp: React.FC = () => {
   return (
     <RootProvider>
-      <RootViewWrapper />
+      <App />
     </RootProvider>
   );
 };
 
-export default App;
+export default RootApp;

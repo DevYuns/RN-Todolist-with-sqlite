@@ -51,6 +51,7 @@ const ModalScreen: React.FC<Props> = ({
 
   const handleEdit = (): void => {
     onEdit(todoItem, editedTodoText);
+    closeModal();
   };
 
   return (

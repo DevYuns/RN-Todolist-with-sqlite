@@ -2,11 +2,15 @@ import React, {useEffect, useState} from 'react';
 import {TodoType} from '../components/uis/Todo';
 
 import createCtx from '../utils/createCtx';
-import {todoDatabase} from '../utils/database';
+import {DBTodoType, todoDatabase} from '../utils/database';
 
 interface Context {
-  dbTodos: TodoType[];
-  applyChanges: () => void;
+  todoCtx: TodoType[];
+  createTodo: (todoText: string) => void;
+  getAllTodos: any;
+  toggleCompletedState: any;
+  updateTodos: any;
+  deleteTodo: any;
   isDBLoadingComplete: boolean;
 }
 
@@ -17,13 +21,12 @@ interface Props {
 }
 
 const DatabaseProvider: React.FC<Props> = ({children}) => {
-  const [dbTodos, setTodos] = useState<TodoType[]>([]);
-  const [isDBLoadingComplete, setDBLoadingComplete] = useState(false);
+  const [todoCtx, setTodos] = useState<TodoType[]>([]);
+  const [isDBLoadingComplete, setDBLoadingComplete] = useState<boolean>(false);
 
   useEffect(() => {
     async function loadDataAsync(): Promise<void> {
       try {
-        await todoDatabase.dropDatabaseTablesAsync();
         await todoDatabase.setupDatabaseAsync();
 
         setDBLoadingComplete(true);
@@ -36,15 +39,17 @@ const DatabaseProvider: React.FC<Props> = ({children}) => {
   }, []);
 
   useEffect(() => {
-    if (isDBLoadingComplete)
-      if (todoDatabase.getAllTodos) return todoDatabase.getAllTodos(setTodos);
-  }, [isDBLoadingComplete]);
+    const getAllTodoFunc = (results: DBTodoType[]): void => {
+      const temp: TodoType[] = [];
 
-  // TODO: db 파일에서 어떻게 함수를 가져와서 콜백을 넘겨줄 지 고민하기..
-  // 일일히 함수를 만들지 말고,,, gettodo랑 변경된 사항을 provider에 알려줄 changeTodo만 만들어보자
-  // 각파일에서 database.ts에서 함수를 가져와서 변경을 가하고 useDatabase의 update함수만 불러서 클라이언트 변경사항을
-  // DB에 반영하도록만 하면 된다!
-  const applyChanges = (): void => {};
+      for (const item of results) temp.push(item);
+
+      setTodos(temp);
+    };
+
+    if (isDBLoadingComplete)
+      if (todoDatabase.getAllTodos) todoDatabase.getAllTodos(getAllTodoFunc);
+  }, [isDBLoadingComplete]);
 
   const getAllTodos = (): any => {
     if (todoDatabase.getAllTodos)
@@ -53,14 +58,35 @@ const DatabaseProvider: React.FC<Props> = ({children}) => {
       });
   };
 
+  const createTodo = (todoText: string): void => {
+    if (todoDatabase.createTodo) todoDatabase.createTodo(todoText, setTodos);
+  };
+
+  const toggleCompletedState = (todoId: number, newState: boolean): void => {
+    if (todoDatabase.toggleCompletedState)
+      todoDatabase.toggleCompletedState(todoId, newState, setTodos);
+  };
+
+  const updateTodos = (todoId: number, newText: string): void => {
+    if (todoDatabase.updateTodo)
+      todoDatabase.updateTodo(todoId, newText, setTodos);
+  };
+
+  const deleteTodo = (todoId: number): void => {
+    if (todoDatabase.deleteTodo) todoDatabase.deleteTodo(todoId, setTodos);
+  };
+
   const DBContext = {
-    dbTodos,
-    applyChanges,
-    getAllTodos,
     isDBLoadingComplete,
+    todoCtx,
+    getAllTodos,
+    createTodo,
+    updateTodos,
+    deleteTodo,
+    toggleCompletedState,
   };
 
   return <Provider value={DBContext}>{children}</Provider>;
 };
 
-export {useCtx as useDatabase, DatabaseProvider};
+export {useCtx as useDatabase, DatabaseProvider, TodoType};

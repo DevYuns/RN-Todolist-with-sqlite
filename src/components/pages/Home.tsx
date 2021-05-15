@@ -1,4 +1,4 @@
-import React, {useCallback, useState} from 'react';
+import React, {useState} from 'react';
 import styled from '@emotion/native';
 import {FlatList, Image, Keyboard, TouchableOpacity} from 'react-native';
 import Todo from '../uis/Todo';
@@ -58,89 +58,61 @@ const ListTitle = styled.Text`
 `;
 
 const Home: React.FC = () => {
-  const [todos, setTodos] = useState<TodoType[]>([]);
   const [todoText, setTodoText] = useState<string>('');
 
-  const {dbTodos} = useDatabase();
+  const {
+    todoCtx,
+    createTodo,
+    deleteTodo,
+    toggleCompletedState,
+    updateTodos,
+  } = useDatabase();
 
-  console.log('홈 투두', dbTodos);
-
-  const onToggleModal = useCallback(
-    (item: TodoType): void => {
-      const index = todos.findIndex((el) => el.id === item.id);
-
-      const nextState = produce(todos, (draft) => {
-        draft[index] = item;
-        draft[index].isModalOpened = !item.isModalOpened;
-      });
-
-      setTodos(nextState);
-    },
-    [todos],
-  );
-
-  const onInsert = useCallback((): void => {
-    if (!todoText) return;
+  const onInsert = (): void => {
+    if (todoText === '') return;
 
     Keyboard.dismiss();
-
-    const nextState = produce(todos, (draft) => {
-      draft.push({
-        id: Date.now().toString(),
-        isModalOpened: false,
-        iscompleted: false,
-        text: todoText,
-      });
-    });
-
+    createTodo(todoText);
     setTodoText('');
-    setTodos(nextState);
-  }, [todoText, todos]);
+  };
 
-  const onDelete = useCallback(
-    (item: TodoType): void => {
-      const index = todos.findIndex((el) => el.id === item.id);
+  const onDelete = (item: TodoType): void => {
+    const onDeleteItem = todoCtx.filter((el) => el.id === item.id);
 
-      const nextState = produce(todos, (draft) => {
-        draft[index] = item;
-        draft.splice(index, 1);
-      });
+    deleteTodo(onDeleteItem[0].id);
+  };
 
-      setTodos(nextState);
-    },
-    [todos],
-  );
+  const onCompleted = (item: TodoType): void => {
+    const onCompletedItem = todoCtx.filter((el) => el.id === item.id);
 
-  const onCompleted = useCallback(
-    (item: TodoType): void => {
-      const index = todos.findIndex((el) => el.id === item.id);
+    const newState = !onCompletedItem[0].isCompleted;
 
-      const nextState = produce(todos, (draft) => {
-        draft[index] = item;
-        draft[index].iscompleted = !item.iscompleted;
-      });
+    toggleCompletedState(onCompletedItem[0].id, newState);
+  };
 
-      setTodos(nextState);
-    },
-    [todos],
-  );
+  const onEdited = (item: TodoType, newText: string): void => {
+    Keyboard.dismiss();
 
-  const onEdited = useCallback(
-    (item: TodoType, str: string): void => {
-      Keyboard.dismiss();
+    const onEditedItem = todoCtx.filter((el) => el.id === item.id);
 
-      const index = todos.findIndex((el) => el.id === item.id);
+    updateTodos(onEditedItem[0].id, newText);
+  };
+  // const onEdited = useCallback(
+  //   (item: TodoType, str: string): void => {
+  //     Keyboard.dismiss();
 
-      const nextState = produce(todos, (draft) => {
-        draft[index] = item;
-        draft[index].text = str;
-        draft[index].isModalOpened = !item.isModalOpened;
-      });
+  //     const index = todos.findIndex((el) => el.id === item.id);
 
-      setTodos(nextState);
-    },
-    [todos],
-  );
+  //     const nextState = produce(todos, (draft) => {
+  //       draft[index] = item;
+  //       draft[index].text = str;
+  //       draft[index].isModalOpened = !item.isModalOpened;
+  //     });
+
+  //     setTodos(nextState);
+  //   },
+  //   [todos],
+  // );
 
   return (
     <Container>
@@ -165,14 +137,13 @@ const Home: React.FC = () => {
             alignSelf: 'stretch',
             paddingHorizontal: 16,
           }}
-          data={todos}
+          data={todoCtx}
           renderItem={({item}) => (
             <Todo
               todoItem={item}
               onCompleted={() => onCompleted(item)}
               onEdit={onEdited}
               onDelete={() => onDelete(item)}
-              onToggleModal={() => onToggleModal(item)}
             />
           )}
         />

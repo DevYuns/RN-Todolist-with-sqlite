@@ -75,7 +75,7 @@ const getAllTodos = (getAllTodosFunc: SetTodosFunc): void => {
         `select * from ${SCHEMA_NAME}`,
         [],
         (_, results: SQLite.SQLResultSet) => {
-          let temp: any = [];
+          let temp: TodoType[] = [];
 
           for (let i = 0; i < results.rows.length; ++i)
             temp.push(results.rows.item(i));

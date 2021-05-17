@@ -1,10 +1,11 @@
 import React, {useState} from 'react';
 import styled from '@emotion/native';
-import {FlatList, Image, Keyboard, TouchableOpacity} from 'react-native';
+import {FlatList, Keyboard, TouchableOpacity} from 'react-native';
 import Todo from '../uis/Todo';
-import {IC_ADD} from '../../utils/Icons';
+import {IC_ADD, IC_ADD_WHITE} from '../../utils/Icons';
 import {fbt} from 'fbt';
 import {TodoType, useTodos} from '../../providers/TodosProvider';
+import {ThemeType, useTheme} from '../../providers/ThemeProvider';
 
 const Container = styled.View`
   flex: 1;
@@ -22,7 +23,7 @@ const TitleWrapper = styled.View`
   flex-direction: row;
   justify-content: center;
   margin-top: 35px;
-  margin-bottom: 20px;
+  margin-bottom: 40px;
 `;
 
 const Title = styled.Text`
@@ -32,16 +33,29 @@ const Title = styled.Text`
   color: ${({theme}) => theme.titleText};
 `;
 
+const ThemeChangeWrapper = styled.TouchableOpacity`
+  margin-bottom: 20px;
+`;
+
+const ThemeChange = styled.Text`
+  color: ${({theme}) => theme.titleText};
+`;
+
 const TextInputWrapper = styled.View`
   flex-direction: row;
   border-bottom-width: 1px;
   align-self: center;
+
+  border-color: ${({theme}) => theme.border};
 `;
 
 const StyledTextInput = styled.TextInput`
   height: 40px;
   width: 268px;
+  color: ${({theme}) => theme.subText};
 `;
+
+const AddButton = styled.Image``;
 
 const ListWrapper = styled.View`
   width: 300px;
@@ -53,10 +67,13 @@ const ListTitle = styled.Text`
   line-height: 25px;
   margin-bottom: 20px;
   font-family: ChauPhilomeneOne;
+  color: ${({theme}) => theme.subText};
 `;
 
 const Home: React.FC = () => {
   const [todoText, setTodoText] = useState<string>('');
+
+  const {changeThemeType, themeType} = useTheme();
 
   const {
     todos,
@@ -101,13 +118,18 @@ const Home: React.FC = () => {
       <TitleWrapper>
         <Title>{fbt("What's your plan?", "what's your plan?")}</Title>
       </TitleWrapper>
+      <ThemeChangeWrapper onPress={() => changeThemeType()}>
+        <ThemeChange>Theme change</ThemeChange>
+      </ThemeChangeWrapper>
       <TextInputWrapper>
         <StyledTextInput
           value={todoText}
           onChangeText={(text) => setTodoText(text)}
         />
         <TouchableOpacity onPress={onInsert}>
-          <Image source={IC_ADD} />
+          <AddButton
+            source={themeType === ThemeType.LIGHT ? IC_ADD : IC_ADD_WHITE}
+          />
         </TouchableOpacity>
       </TextInputWrapper>
       <ListWrapper>

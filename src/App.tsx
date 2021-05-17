@@ -5,7 +5,7 @@ import RootViewWrapper from './components/RootViewWrapper';
 import {useAssets} from 'expo-asset';
 import Icons from './utils/Icons';
 import {initFbt} from './utils/fbt';
-import {useDatabase} from './providers/DatabaseProvider';
+import {useTodos} from './providers/TodosProvider';
 
 initFbt();
 
@@ -16,9 +16,9 @@ const App: React.FC = () => {
     ChauPhilomeneOne: require('../assets/fonts/ChauPhilomeneOne-Regular.ttf'),
   });
 
-  const {isDBLoadingComplete} = useDatabase();
+  const {isDBLoadingCompleted} = useTodos();
 
-  if (!isDBLoadingComplete || !assets || !fontLoaded) return null;
+  if (!isDBLoadingCompleted || !assets || !fontLoaded) return null;
 
   return <RootViewWrapper />;
 };

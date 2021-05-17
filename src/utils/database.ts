@@ -1,146 +1,187 @@
 import * as SQLite from 'expo-sqlite';
+import {DB_TODOS, SCHEMA_NAME} from '../constants';
+import {handleError} from './handleError';
 
-/* createdAt 과 completedAt 으로 비교해서 완료 비교. 토글을 위해서는 null값으로 줬다가 새로 시간줬다가 하기*/
-export type DBTodoType = {
+/* createdAt 과 completedAt 으로 비교해서 완료 비교. 토글을 위해서는 null값으로 줬다가 새로 시간줬다가 하기 */
+export type TodoType = {
   id: number;
   text: string;
   isCompleted: boolean;
 };
 
-export type GetAllTodosFunc = (results: DBTodoType[]) => void;
-export type GetTodoFunc = (todo: DBTodoType) => void;
-export type CreateTodoFunc = (results: any) => void;
-export type UpdateTodoFunc = (results: any) => void;
+export type SetTodosFunc = (results: TodoType[]) => void;
+export type GetTodoFunc = (todo: TodoType) => void;
 
-export interface TodoDatabase {
-  getAllTodos?: (getAllTodosFunc: GetAllTodosFunc) => void;
-  getTodo?: (id: number, getTodoFunc: GetTodoFunc) => void;
-  createTodo?: (text: string, createTodoFunc: CreateTodoFunc) => void;
-  updateTodo?: (
+export interface TodoResolvers {
+  getAllTodos: (getAllTodosFunc: SetTodosFunc) => void;
+  getTodo: (id: number, getTodoFunc: GetTodoFunc) => void;
+  createTodo: (text: string, createTodoFunc: SetTodosFunc) => void;
+  updateTodo: (
     id: number,
     editedText: string,
-    updateTodoFunc: UpdateTodoFunc,
+    updateTodoFunc: SetTodosFunc,
   ) => void;
-  toggleCompletedState?: (
+  toggleCompletedState: (
     id: number,
     isCompleted: boolean,
-    toggleTodoFunc: any,
+    toggleTodoFunc: SetTodosFunc,
   ) => void;
-  deleteTodo?: (id: number, deleteTodo: any) => void;
+  deleteTodo: (id: number, deleteTodoFunc: SetTodosFunc) => void;
 
-  dropDatabaseTablesAsync?: any;
-  setupDatabaseAsync?: any;
+  dropDatabaseTablesAsync: () => Promise<void>;
+  setupDatabaseAsync: () => Promise<void>;
 }
 
-const databaseInstance: SQLite.Database | undefined = SQLite.openDatabase(
-  'todos.db',
-);
+const DBInstance: SQLite.Database | undefined = SQLite.openDatabase(DB_TODOS);
 
 const setupDatabaseAsync = async (): Promise<void> => {
   return new Promise((resolve, reject) => {
-    databaseInstance.transaction(
+    DBInstance.transaction(
       (tx) => {
         tx.executeSql(
-          'create table if not exists todos (id integer primary key autoincrement not null, text varchar(255), isCompleted bool)',
+          `create table if not exists ${SCHEMA_NAME} (id integer primary key autoincrement not null, text varchar(255), isCompleted bool)`,
         );
       },
       () => {
-        console.log('db error  creating table');
         reject();
       },
       () => {
-        console.log('Set up database successed');
         resolve();
       },
     );
   });
 };
 
-const getAllTodos = (getAllTodosFunc: GetAllTodosFunc): void => {
-  databaseInstance.transaction((tx) => {
-    tx.executeSql(
-      'select * from todos',
-      [],
-      (_, results: SQLite.SQLResultSet) => {
-        let temp: any = [];
-
-        for (let i = 0; i < results.rows.length; ++i)
-          temp.push(results.rows.item(i));
-
-        getAllTodosFunc(temp);
+const dropDatabaseTablesAsync = async (): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    DBInstance.transaction(
+      (tx) => {
+        tx.executeSql(`drop table ${SCHEMA_NAME}`);
+      },
+      () => {
+        reject();
+      },
+      () => {
+        resolve();
       },
     );
   });
+};
+
+const getAllTodos = (getAllTodosFunc: SetTodosFunc): void => {
+  try {
+    DBInstance.transaction((tx) => {
+      tx.executeSql(
+        `select * from ${SCHEMA_NAME}`,
+        [],
+        (_, results: SQLite.SQLResultSet) => {
+          let temp: any = [];
+
+          for (let i = 0; i < results.rows.length; ++i)
+            temp.push(results.rows.item(i));
+
+          getAllTodosFunc(temp);
+        },
+      );
+    });
+  } catch (error) {
+    handleError(error);
+  }
 };
 
 const getTodo = (todoId: number, getTodoFunc: GetTodoFunc): void => {
-  databaseInstance.transaction((tx) => {
-    tx.executeSql(
-      'select * from todos where id = ?',
-      [todoId],
-      (_, results) => {
-        const len = results.rows.length;
+  try {
+    DBInstance.transaction((tx) => {
+      tx.executeSql(
+        `select * from ${SCHEMA_NAME} where id = ?`,
+        [todoId],
+        (_, results) => {
+          const len = results.rows.length;
 
-        if (len > 0) getTodoFunc(results.rows.item(0));
-      },
-    );
-  });
+          if (len > 0) getTodoFunc(results.rows.item(0));
+        },
+      );
+    });
+  } catch (error) {
+    handleError(error);
+  }
 };
 
-const createTodo = (todoText: string, createTodoFunc: CreateTodoFunc): void => {
-  databaseInstance.transaction((tx) => {
-    tx.executeSql(
-      'insert into todos (text, isCompleted) values (?, ?)',
-      [todoText, false],
-      (_, results: SQLite.SQLResultSet) => {
-        if (results.rowsAffected > 0) getAllTodos(createTodoFunc);
-      },
-    );
-  });
+const createTodo = (todoText: string, createTodoFunc: SetTodosFunc): void => {
+  try {
+    DBInstance.transaction((tx) => {
+      tx.executeSql(
+        `insert into ${SCHEMA_NAME} (text, isCompleted) values (?, ?)`,
+        [todoText, false],
+        (_, results: SQLite.SQLResultSet) => {
+          if (results.rowsAffected > 0) getAllTodos(createTodoFunc);
+        },
+      );
+    });
+  } catch (error) {
+    handleError(error);
+  }
 };
 
 const toggleCompletedState = (
   todoId: number,
   isCompleted: boolean,
-  toggleTodoFunc,
+  toggleTodoFunc: SetTodosFunc,
 ): void => {
-  databaseInstance.transaction((tx) => {
-    tx.executeSql(
-      'update todos set isCompleted=? where id=?',
-      [isCompleted, todoId],
-      (_, results) => {
-        if (results.rowsAffected > 0) getAllTodos(toggleTodoFunc);
-      },
-    );
-  });
+  try {
+    DBInstance.transaction((tx) => {
+      tx.executeSql(
+        `update ${SCHEMA_NAME} set isCompleted=? where id=?`,
+        [isCompleted, todoId],
+        (_, results) => {
+          if (results.rowsAffected > 0) getAllTodos(toggleTodoFunc);
+        },
+      );
+    });
+  } catch (error) {
+    handleError(error);
+  }
 };
 
 const updateTodo = (
   todoId: number,
   editedText: string,
-  updateTodoFunc: UpdateTodoFunc,
+  updateTodoFunc: SetTodosFunc,
 ): void => {
-  databaseInstance.transaction((tx) => {
-    tx.executeSql(
-      'update todos set text=? where id=?',
-      [editedText, todoId],
-      (_, results) => {
-        if (results.rowsAffected > 0) getAllTodos(updateTodoFunc);
-      },
-    );
-  });
-};
-
-const deleteTodo = (todoId: number, deleteTodoFunc): void => {
-  databaseInstance.transaction((tx) => {
-    tx.executeSql('delete from todos where id=?', [todoId], (_, results) => {
-      if (results.rowsAffected > 0) getAllTodos(deleteTodoFunc);
+  try {
+    DBInstance.transaction((tx) => {
+      tx.executeSql(
+        `update ${SCHEMA_NAME} set text=? where id=?`,
+        [editedText, todoId],
+        (_, results) => {
+          if (results.rowsAffected > 0) getAllTodos(updateTodoFunc);
+        },
+      );
     });
-  });
+  } catch (error) {
+    handleError(error);
+  }
 };
 
-export const todoDatabase: TodoDatabase = {
+const deleteTodo = (todoId: number, deleteTodoFunc: SetTodosFunc): void => {
+  try {
+    DBInstance.transaction((tx) => {
+      tx.executeSql(
+        `delete from ${SCHEMA_NAME} where id=?`,
+        [todoId],
+        (_, results) => {
+          if (results.rowsAffected > 0) getAllTodos(deleteTodoFunc);
+        },
+      );
+    });
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const todoResolvers: TodoResolvers = {
   setupDatabaseAsync,
+  dropDatabaseTablesAsync,
   createTodo,
   getAllTodos,
   getTodo,

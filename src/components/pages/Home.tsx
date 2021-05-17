@@ -3,10 +3,8 @@ import styled from '@emotion/native';
 import {FlatList, Image, Keyboard, TouchableOpacity} from 'react-native';
 import Todo from '../uis/Todo';
 import {IC_ADD} from '../../utils/Icons';
-import type {TodoType} from '../uis/Todo';
-import produce from 'immer';
 import {fbt} from 'fbt';
-import {useDatabase} from '../../providers/DatabaseProvider';
+import {TodoType, useTodos} from '../../providers/TodosProvider';
 
 const Container = styled.View`
   flex: 1;
@@ -61,12 +59,12 @@ const Home: React.FC = () => {
   const [todoText, setTodoText] = useState<string>('');
 
   const {
-    todoCtx,
+    todos,
     createTodo,
     deleteTodo,
     toggleCompletedState,
     updateTodos,
-  } = useDatabase();
+  } = useTodos();
 
   const onInsert = (): void => {
     if (todoText === '') return;
@@ -77,13 +75,13 @@ const Home: React.FC = () => {
   };
 
   const onDelete = (item: TodoType): void => {
-    const onDeleteItem = todoCtx.filter((el) => el.id === item.id);
+    const onDeleteItem = todos.filter((el) => el.id === item.id);
 
     deleteTodo(onDeleteItem[0].id);
   };
 
   const onCompleted = (item: TodoType): void => {
-    const onCompletedItem = todoCtx.filter((el) => el.id === item.id);
+    const onCompletedItem = todos.filter((el) => el.id === item.id);
 
     const newState = !onCompletedItem[0].isCompleted;
 
@@ -93,26 +91,10 @@ const Home: React.FC = () => {
   const onEdited = (item: TodoType, newText: string): void => {
     Keyboard.dismiss();
 
-    const onEditedItem = todoCtx.filter((el) => el.id === item.id);
+    const onEditedItem = todos.filter((el) => el.id === item.id);
 
     updateTodos(onEditedItem[0].id, newText);
   };
-  // const onEdited = useCallback(
-  //   (item: TodoType, str: string): void => {
-  //     Keyboard.dismiss();
-
-  //     const index = todos.findIndex((el) => el.id === item.id);
-
-  //     const nextState = produce(todos, (draft) => {
-  //       draft[index] = item;
-  //       draft[index].text = str;
-  //       draft[index].isModalOpened = !item.isModalOpened;
-  //     });
-
-  //     setTodos(nextState);
-  //   },
-  //   [todos],
-  // );
 
   return (
     <Container>
@@ -137,7 +119,7 @@ const Home: React.FC = () => {
             alignSelf: 'stretch',
             paddingHorizontal: 16,
           }}
-          data={todoCtx}
+          data={todos}
           renderItem={({item}) => (
             <Todo
               todoItem={item}

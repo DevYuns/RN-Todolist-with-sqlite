@@ -4,7 +4,7 @@ import {Image, Modal, TouchableOpacity} from 'react-native';
 import {IC_TRASH} from '../../utils/Icons';
 import {CheckBox} from './Checkbox';
 import ModalScreen from './ModalScreen';
-import type {DBTodoType} from '../../utils/database';
+import type {TodoType} from '../../utils/database';
 
 const Container = styled.View`
   flex-direction: row;
@@ -33,15 +33,6 @@ const LeftWrapper = styled.View`
 `;
 
 const RightWrapper = styled.TouchableOpacity``;
-
-// export type TodoType = {
-//   id: number;
-//   isModalOpened: boolean;
-//   iscompleted: boolean;
-//   text: string;
-// };
-
-export type TodoType = Pick<DBTodoType, 'id' | 'isCompleted' | 'text'>;
 
 interface Props {
   todoItem: TodoType;

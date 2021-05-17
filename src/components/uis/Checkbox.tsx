@@ -8,6 +8,8 @@ import {
 
 import {SvgCheck} from '../../utils/Icons';
 import styled from '@emotion/native';
+import {ThemeType, useTheme} from '../../providers/ThemeProvider';
+import {theme as themeSet} from '../../theme';
 
 const Container = styled.View`
   height: 24px;
@@ -20,7 +22,7 @@ const StyledCheck = styled.View`
   height: 20px;
   width: 20px;
   border-width: 1px;
-  border-color: #000000;
+  border-color: ${({theme}) => theme.border};
 
   align-items: center;
   justify-content: center;
@@ -38,7 +40,6 @@ interface Props {
   onToggle?: () => void;
   isChecked?: boolean;
   text?: string;
-  checkColor?: string;
   activeColor?: string;
   inActiveColor?: string;
   backgroundColor?: string;
@@ -48,7 +49,6 @@ export const CheckBox: React.FC<Props> = (props: Props) => {
   const {
     containerStyle,
     checkStyle,
-    checkColor,
     activeColor,
     inActiveColor,
     backgroundColor,
@@ -57,6 +57,8 @@ export const CheckBox: React.FC<Props> = (props: Props) => {
     isChecked = false,
     onToggle,
   } = props;
+
+  const {themeType} = useTheme();
 
   return (
     <Container style={containerStyle}>
@@ -70,7 +72,15 @@ export const CheckBox: React.FC<Props> = (props: Props) => {
             },
           ]}>
           {isChecked ? (
-            <SvgCheck width={14} height={14} fill={checkColor} />
+            <SvgCheck
+              width={14}
+              height={14}
+              fill={
+                themeType === ThemeType.LIGHT
+                  ? themeSet.light.icon
+                  : themeSet.dark.icon
+              }
+            />
           ) : null}
         </StyledCheck>
       </TouchableOpacity>

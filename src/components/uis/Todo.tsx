@@ -1,10 +1,11 @@
 import styled from '@emotion/native';
 import React, {useState} from 'react';
 import {Image, Modal, TouchableOpacity} from 'react-native';
-import {IC_TRASH} from '../../utils/Icons';
+import {IC_TRASH, IC_TRASH_BLACK} from '../../utils/Icons';
 import {CheckBox} from './Checkbox';
 import ModalScreen from './ModalScreen';
 import type {TodoType} from '../../utils/database';
+import {ThemeType, useTheme} from '../../providers/ThemeProvider';
 
 const Container = styled.View`
   flex-direction: row;
@@ -49,6 +50,8 @@ const Todo: React.FC<Props> = ({
 }: Props) => {
   const [localModalState, setLocalMoalState] = useState<boolean>(false);
 
+  const {themeType} = useTheme();
+
   return (
     <Container>
       <Modal
@@ -72,7 +75,11 @@ const Todo: React.FC<Props> = ({
         </TouchableOpacity>
       </LeftWrapper>
       <RightWrapper onPress={onDelete}>
-        <Image source={IC_TRASH} />
+        <Image
+          source={themeType === ThemeType.LIGHT ? IC_TRASH : IC_TRASH_BLACK}
+          width={15}
+          height={15}
+        />
       </RightWrapper>
     </Container>
   );

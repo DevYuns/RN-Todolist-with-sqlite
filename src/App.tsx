@@ -6,15 +6,14 @@ import {useAssets} from 'expo-asset';
 import Icons from './utils/Icons';
 import {initFbt} from './utils/fbt';
 import {useTodos} from './providers/TodosProvider';
+import Fonts from './utils/Fonts';
 
 initFbt();
 
 const App: React.FC = () => {
   const [assets] = useAssets(Icons);
 
-  const [fontLoaded] = useFonts({
-    ChauPhilomeneOne: require('../assets/fonts/ChauPhilomeneOne-Regular.ttf'),
-  });
+  const [fontLoaded] = useFonts(Fonts);
 
   const {isDBLoadingCompleted} = useTodos();
 

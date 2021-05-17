@@ -13,3 +13,8 @@ declare module '*.png' {
   const content;
   export default content;
 }
+
+declare module '*.ttf' {
+  const content;
+  export default content;
+}

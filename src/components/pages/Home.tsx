@@ -3,7 +3,7 @@ import styled from '@emotion/native';
 import {FlatList, Keyboard, TouchableOpacity} from 'react-native';
 import {TodoItem} from '../uis/Todo';
 import {IC_ADD, IC_ADD_WHITE} from '../../utils/icons';
-import {fbt} from 'fbt';
+import {getString} from '../../../STRINGS';
 import {TodoType, useTodos} from '../../providers/TodosProvider';
 import {ThemeType, useTheme} from '../../providers/ThemeProvider';
 
@@ -116,10 +116,10 @@ const Home: React.FC = () => {
   return (
     <Container>
       <TitleWrapper>
-        <Title>{fbt("What's your plan?", "what's your plan?")}</Title>
+        <Title>{getString('TODO_TITLE')}</Title>
       </TitleWrapper>
       <ThemeChangeWrapper onPress={() => changeThemeType()}>
-        <ThemeChange>Theme change</ThemeChange>
+        <ThemeChange>{getString('THEME_CHANGE')}</ThemeChange>
       </ThemeChangeWrapper>
       <TextInputWrapper>
         <StyledTextInput
@@ -133,7 +133,7 @@ const Home: React.FC = () => {
         </TouchableOpacity>
       </TextInputWrapper>
       <TodoListWrapper>
-        <TodoListTitle>Upcoming To-do's</TodoListTitle>
+        <TodoListTitle>{getString('TODO_SUB_TITLE')}</TodoListTitle>
         <FlatList
           style={{alignSelf: 'stretch'}}
           keyExtractor={(_, index) => index.toString()}

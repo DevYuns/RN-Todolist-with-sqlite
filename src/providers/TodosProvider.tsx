@@ -1,17 +1,16 @@
 import React, {useEffect, useState} from 'react';
 
 import createCtx from '../utils/createCtx';
-import {TodoType, todoResolvers, SetTodosType} from '../utils/database';
+import {TodoType, todoResolvers} from '../utils/database';
 import {handleError} from '../utils/handleError';
 
 interface Context {
   todos: TodoType[];
   createTodo: (todoText: string) => void;
-  getAllTodos: (getAllTodosFunc: SetTodosType) => void;
-  toggleCompletedState: (id: number, isCompleted: boolean) => void;
+  toggleCompleteStatus: (id: number, isCompleted: boolean) => void;
   updateTodos: (id: number, editedText: string) => void;
   deleteTodo: (id: number) => void;
-  isDBLoadingCompleted: boolean;
+  isTodoReady: boolean;
 }
 
 const [useCtx, Provider] = createCtx<Context>();
@@ -23,16 +22,25 @@ interface Props {
 const TodosProvider: React.FC<Props> = ({children}) => {
   const [todos, setTodos] = useState<TodoType[]>([]);
 
-  const [isDBLoadingCompleted, setDBLoadingCompleted] = useState<boolean>(
-    false,
-  );
+  const [isDBReady, setDBReady] = useState<boolean>(false);
+  const [isTodoReady, setTodoReady] = useState<boolean>(false);
+
+  const getNewTodos = async (): Promise<void> => {
+    let temp: TodoType[] = [];
+
+    await todoResolvers.getAllTodos().then((results) => {
+      if (results) temp.push(...results);
+    });
+
+    setTodos(temp);
+  };
 
   useEffect(() => {
     async function loadDataAsync(): Promise<void> {
       try {
         await todoResolvers.setupDatabaseAsync();
 
-        setDBLoadingCompleted(true);
+        setDBReady(true);
       } catch (e) {
         handleError(e);
       }
@@ -42,40 +50,35 @@ const TodosProvider: React.FC<Props> = ({children}) => {
   }, []);
 
   useEffect(() => {
-    const getAllTodoFunc = (results: TodoType[]): void => {
-      const temp: TodoType[] = [];
+    if (isDBReady) {
+      getNewTodos();
+      setTodoReady(true);
+    }
+  }, [isDBReady]);
 
-      for (const item of results) temp.push(item);
+  const createTodo = (todoText: string): void => {
+    if (todoResolvers.createTodo(todoText)) getNewTodos();
+  };
 
-      setTodos(temp);
-    };
+  const toggleCompleteStatus = (todoId: number, newState: boolean): void => {
+    if (todoResolvers.toggleCompleteStatus(todoId, newState)) getNewTodos();
+  };
 
-    if (isDBLoadingCompleted)
-      if (todoResolvers.getAllTodos) todoResolvers.getAllTodos(getAllTodoFunc);
-  }, [isDBLoadingCompleted]);
+  const updateTodos = (todoId: number, newText: string): void => {
+    if (todoResolvers.updateTodo(todoId, newText)) getNewTodos();
+  };
 
-  const getAllTodos = (): void => todoResolvers.getAllTodos(setTodos);
-
-  const createTodo = (todoText: string): void =>
-    todoResolvers.createTodo(todoText, setTodos);
-
-  const toggleCompletedState = (todoId: number, newState: boolean): void =>
-    todoResolvers.toggleCompletedState(todoId, newState, setTodos);
-
-  const updateTodos = (todoId: number, newText: string): void =>
-    todoResolvers.updateTodo(todoId, newText, setTodos);
-
-  const deleteTodo = (todoId: number): void =>
-    todoResolvers.deleteTodo(todoId, setTodos);
+  const deleteTodo = (todoId: number): void => {
+    if (todoResolvers.deleteTodo(todoId)) getNewTodos();
+  };
 
   const TodosContext = {
-    isDBLoadingCompleted,
+    isTodoReady,
     todos,
-    getAllTodos,
     createTodo,
     updateTodos,
     deleteTodo,
-    toggleCompletedState,
+    toggleCompleteStatus,
   };
 
   return <Provider value={TodosContext}>{children}</Provider>;

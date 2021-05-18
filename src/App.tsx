@@ -29,9 +29,9 @@ const App: React.FC = () => {
 
   const [fontLoaded] = useFonts(fonts);
 
-  const {isDBLoadingCompleted} = useTodos();
+  const {isTodoReady} = useTodos();
 
-  if (!isDBLoadingCompleted || !assets || !fontLoaded) return <AppLoading />;
+  if (!isTodoReady || !assets || !fontLoaded) return <AppLoading />;
 
   return (
     <Container>

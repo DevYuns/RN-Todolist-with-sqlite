@@ -79,7 +79,7 @@ const Home: React.FC = () => {
     todos,
     createTodo,
     deleteTodo,
-    toggleCompletedState,
+    toggleCompleteStatus,
     updateTodos,
   } = useTodos();
 
@@ -102,7 +102,7 @@ const Home: React.FC = () => {
 
     const newState = !onCompletedItem[0].isCompleted;
 
-    toggleCompletedState(onCompletedItem[0].id, newState);
+    toggleCompleteStatus(onCompletedItem[0].id, newState);
   };
 
   const handleEdit = (item: TodoType, newText: string): void => {

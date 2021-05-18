@@ -1,8 +1,8 @@
 import React, {useState} from 'react';
 import styled from '@emotion/native';
 import {FlatList, Keyboard, TouchableOpacity} from 'react-native';
-import Todo from '../uis/Todo';
-import {IC_ADD, IC_ADD_WHITE} from '../../utils/Icons';
+import {TodoItem} from '../uis/Todo';
+import {IC_ADD, IC_ADD_WHITE} from '../../utils/icons';
 import {fbt} from 'fbt';
 import {TodoType, useTodos} from '../../providers/TodosProvider';
 import {ThemeType, useTheme} from '../../providers/ThemeProvider';
@@ -57,12 +57,12 @@ const StyledTextInput = styled.TextInput`
 
 const AddButton = styled.Image``;
 
-const ListWrapper = styled.View`
+const TodoListWrapper = styled.View`
   width: 300px;
   margin-top: 40px;
 `;
 
-const ListTitle = styled.Text`
+const TodoListTitle = styled.Text`
   font-size: 18px;
   line-height: 25px;
   margin-bottom: 20px;
@@ -79,11 +79,11 @@ const Home: React.FC = () => {
     todos,
     createTodo,
     deleteTodo,
-    toggleCompletedState,
+    toggleCompleteStatus,
     updateTodos,
   } = useTodos();
 
-  const onInsert = (): void => {
+  const handleInsert = (): void => {
     if (todoText === '') return;
 
     Keyboard.dismiss();
@@ -91,21 +91,21 @@ const Home: React.FC = () => {
     setTodoText('');
   };
 
-  const onDelete = (item: TodoType): void => {
+  const handleDelete = (item: TodoType): void => {
     const onDeleteItem = todos.filter((el) => el.id === item.id);
 
     deleteTodo(onDeleteItem[0].id);
   };
 
-  const onCompleted = (item: TodoType): void => {
+  const toggleComplete = (item: TodoType): void => {
     const onCompletedItem = todos.filter((el) => el.id === item.id);
 
     const newState = !onCompletedItem[0].isCompleted;
 
-    toggleCompletedState(onCompletedItem[0].id, newState);
+    toggleCompleteStatus(onCompletedItem[0].id, newState);
   };
 
-  const onEdited = (item: TodoType, newText: string): void => {
+  const handleEdit = (item: TodoType, newText: string): void => {
     Keyboard.dismiss();
 
     const onEditedItem = todos.filter((el) => el.id === item.id);
@@ -126,14 +126,14 @@ const Home: React.FC = () => {
           value={todoText}
           onChangeText={(text) => setTodoText(text)}
         />
-        <TouchableOpacity onPress={onInsert}>
+        <TouchableOpacity onPress={handleInsert}>
           <AddButton
             source={themeType === ThemeType.LIGHT ? IC_ADD : IC_ADD_WHITE}
           />
         </TouchableOpacity>
       </TextInputWrapper>
-      <ListWrapper>
-        <ListTitle>Upcoming To-do's</ListTitle>
+      <TodoListWrapper>
+        <TodoListTitle>Upcoming To-do's</TodoListTitle>
         <FlatList
           style={{alignSelf: 'stretch'}}
           keyExtractor={(_, index) => index.toString()}
@@ -143,15 +143,15 @@ const Home: React.FC = () => {
           }}
           data={todos}
           renderItem={({item}) => (
-            <Todo
+            <TodoItem
               todoItem={item}
-              onCompleted={() => onCompleted(item)}
-              onEdit={onEdited}
-              onDelete={() => onDelete(item)}
+              toggleComplete={() => toggleComplete(item)}
+              onEdit={handleEdit}
+              onDelete={() => handleDelete(item)}
             />
           )}
         />
-      </ListWrapper>
+      </TodoListWrapper>
     </Container>
   );
 };

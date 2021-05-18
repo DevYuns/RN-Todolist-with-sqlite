@@ -1,11 +1,11 @@
 import styled from '@emotion/native';
 import React, {useState} from 'react';
 import {Image, Modal, TouchableOpacity} from 'react-native';
-import {IC_TRASH, IC_TRASH_BLACK} from '../../utils/Icons';
-import {CheckBox} from './Checkbox';
-import ModalScreen from './ModalScreen';
-import type {TodoType} from '../../utils/database';
-import {ThemeType, useTheme} from '../../providers/ThemeProvider';
+import {IC_TRASH, IC_TRASH_BLACK} from '../../../utils/icons';
+import {CheckBox} from '../Checkbox';
+import EditTodoModal from './EditTodoModal';
+import type {TodoType} from '../../../utils/database';
+import {ThemeType, useTheme} from '../../../providers/ThemeProvider';
 
 const Container = styled.View`
   flex-direction: row;
@@ -37,18 +37,18 @@ const RightWrapper = styled.TouchableOpacity``;
 
 interface Props {
   todoItem: TodoType;
-  onCompleted: () => void;
+  toggleComplete: () => void;
   onEdit: (item: TodoType, str: string) => void;
   onDelete: () => void;
 }
 
-const Todo: React.FC<Props> = ({
+const TodoItem: React.FC<Props> = ({
   todoItem,
-  onCompleted,
-  onEdit,
-  onDelete,
-}: Props) => {
-  const [localModalState, setLocalMoalState] = useState<boolean>(false);
+  toggleComplete,
+  onEdit: handleEdit,
+  onDelete: handleDelete,
+}) => {
+  const [isModalVisible, setModalVisible] = useState<boolean>(false);
 
   const {themeType} = useTheme();
 
@@ -56,25 +56,25 @@ const Todo: React.FC<Props> = ({
     <Container>
       <Modal
         animationType="fade"
-        visible={localModalState}
-        onRequestClose={() => setLocalMoalState(!localModalState)}
+        visible={isModalVisible}
+        onRequestClose={() => setModalVisible((prev) => !prev)}
         transparent={true}>
-        <ModalScreen
-          closeModal={() => setLocalMoalState(!localModalState)}
-          text={todoItem.text}
+        <EditTodoModal
+          closeModal={() => setModalVisible((prev) => !prev)}
+          todoText={todoItem.text}
           todoItem={todoItem}
-          onEdit={onEdit}
+          onEdit={handleEdit}
         />
       </Modal>
       <LeftWrapper>
-        <CheckBox isChecked={todoItem.isCompleted} onToggle={onCompleted} />
-        <TouchableOpacity onPress={() => setLocalMoalState(!localModalState)}>
+        <CheckBox isChecked={todoItem.isCompleted} onToggle={toggleComplete} />
+        <TouchableOpacity onPress={() => setModalVisible((prev) => !prev)}>
           <ListText numberOfLines={1} done={todoItem.isCompleted}>
             {todoItem.text}
           </ListText>
         </TouchableOpacity>
       </LeftWrapper>
-      <RightWrapper onPress={onDelete}>
+      <RightWrapper onPress={handleDelete}>
         <Image
           source={themeType === ThemeType.LIGHT ? IC_TRASH : IC_TRASH_BLACK}
           width={15}
@@ -85,4 +85,4 @@ const Todo: React.FC<Props> = ({
   );
 };
 
-export default Todo;
+export {TodoItem};

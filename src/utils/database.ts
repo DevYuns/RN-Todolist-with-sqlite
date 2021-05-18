@@ -2,31 +2,19 @@ import * as SQLite from 'expo-sqlite';
 import {DB_TODOS, SCHEMA_NAME} from '../constants';
 import {handleError} from './handleError';
 
-/* createdAt 과 completedAt 으로 비교해서 완료 비교. 토글을 위해서는 null값으로 줬다가 새로 시간줬다가 하기 */
 export type TodoType = {
   id: number;
   text: string;
   isCompleted: boolean;
 };
 
-export type SetTodosFunc = (results: TodoType[]) => void;
-export type GetTodoFunc = (todo: TodoType) => void;
-
 export interface TodoResolvers {
-  getAllTodos: (getAllTodosFunc: SetTodosFunc) => void;
-  getTodo: (id: number, getTodoFunc: GetTodoFunc) => void;
-  createTodo: (text: string, createTodoFunc: SetTodosFunc) => void;
-  updateTodo: (
-    id: number,
-    editedText: string,
-    updateTodoFunc: SetTodosFunc,
-  ) => void;
-  toggleCompletedState: (
-    id: number,
-    isCompleted: boolean,
-    toggleTodoFunc: SetTodosFunc,
-  ) => void;
-  deleteTodo: (id: number, deleteTodoFunc: SetTodosFunc) => void;
+  getAllTodos: () => Promise<TodoType[] | undefined>;
+  getTodo: (id: number) => Promise<TodoType | undefined>;
+  createTodo: (text: string) => boolean;
+  updateTodo: (id: number, editedText: string) => boolean;
+  toggleCompleteStatus: (id: number, isCompleted: boolean) => boolean;
+  deleteTodo: (id: number) => boolean;
 
   dropDatabaseTablesAsync: () => Promise<void>;
   setupDatabaseAsync: () => Promise<void>;
@@ -34,7 +22,7 @@ export interface TodoResolvers {
 
 const DBInstance: SQLite.Database | undefined = SQLite.openDatabase(DB_TODOS);
 
-const setupDatabaseAsync = async (): Promise<void> => {
+const setupDatabaseAsync = (): Promise<void> => {
   return new Promise((resolve, reject) => {
     DBInstance.transaction(
       (tx) => {
@@ -43,7 +31,7 @@ const setupDatabaseAsync = async (): Promise<void> => {
         );
       },
       () => {
-        reject();
+        reject('Fail to create a todo table');
       },
       () => {
         resolve();
@@ -52,14 +40,14 @@ const setupDatabaseAsync = async (): Promise<void> => {
   });
 };
 
-const dropDatabaseTablesAsync = async (): Promise<void> => {
+const dropDatabaseTablesAsync = (): Promise<void> => {
   return new Promise((resolve, reject) => {
     DBInstance.transaction(
       (tx) => {
         tx.executeSql(`drop table ${SCHEMA_NAME}`);
       },
       () => {
-        reject();
+        reject('Fail to drop a todo table');
       },
       () => {
         resolve();
@@ -68,114 +56,120 @@ const dropDatabaseTablesAsync = async (): Promise<void> => {
   });
 };
 
-const getAllTodos = (getAllTodosFunc: SetTodosFunc): void => {
-  try {
-    DBInstance.transaction((tx) => {
-      tx.executeSql(
-        `select * from ${SCHEMA_NAME}`,
-        [],
-        (_, results: SQLite.SQLResultSet) => {
-          let temp: TodoType[] = [];
+const getAllTodos = (): Promise<TodoType[] | undefined> => {
+  let temp: TodoType[] = [];
 
-          for (let i = 0; i < results.rows.length; ++i)
-            temp.push(results.rows.item(i));
-
-          getAllTodosFunc(temp);
-        },
-      );
-    });
-  } catch (error) {
-    handleError(error);
-  }
+  return new Promise((resolve, reject) => {
+    DBInstance.transaction(
+      (tx) => {
+        tx.executeSql(
+          `select * from ${SCHEMA_NAME}`,
+          [],
+          (_, results: SQLite.SQLResultSet) => {
+            for (let i = 0; i < results.rows.length; ++i)
+              temp.push(results.rows.item(i));
+          },
+        );
+      },
+      () => {
+        reject('Fail to get todos from todos table');
+      },
+      () => {
+        resolve(temp);
+      },
+    );
+  });
 };
 
-const getTodo = (todoId: number, getTodoFunc: GetTodoFunc): void => {
-  try {
-    DBInstance.transaction((tx) => {
-      tx.executeSql(
-        `select * from ${SCHEMA_NAME} where id = ?`,
-        [todoId],
-        (_, results) => {
-          const len = results.rows.length;
+const getTodo = (todoId: number): Promise<TodoType | undefined> => {
+  let todo: TodoType;
 
-          if (len > 0) getTodoFunc(results.rows.item(0));
-        },
-      );
-    });
-  } catch (error) {
-    handleError(error);
-  }
+  return new Promise((resolve, reject) => {
+    DBInstance.transaction(
+      (tx) => {
+        tx.executeSql(
+          `select * from ${SCHEMA_NAME} where id = ?`,
+          [todoId],
+          (_, results: SQLite.SQLResultSet) => {
+            if (results.rows.length > 0) todo = results.rows.item(0);
+          },
+        );
+      },
+      () => {
+        reject('Fail to get todo from todos table');
+      },
+      () => {
+        resolve(todo);
+      },
+    );
+  });
 };
 
-const createTodo = (todoText: string, createTodoFunc: SetTodosFunc): void => {
+const createTodo = (todoText: string): boolean => {
   try {
     DBInstance.transaction((tx) => {
       tx.executeSql(
         `insert into ${SCHEMA_NAME} (text, isCompleted) values (?, ?)`,
         [todoText, false],
-        (_, results: SQLite.SQLResultSet) => {
-          if (results.rowsAffected > 0) getAllTodos(createTodoFunc);
-        },
       );
     });
+
+    return true;
   } catch (error) {
     handleError(error);
+
+    return false;
   }
 };
 
-const toggleCompletedState = (
+const toggleCompleteStatus = (
   todoId: number,
   isCompleted: boolean,
-  toggleTodoFunc: SetTodosFunc,
-): void => {
+): boolean => {
   try {
     DBInstance.transaction((tx) => {
-      tx.executeSql(
-        `update ${SCHEMA_NAME} set isCompleted=? where id=?`,
-        [isCompleted, todoId],
-        (_, results) => {
-          if (results.rowsAffected > 0) getAllTodos(toggleTodoFunc);
-        },
-      );
+      tx.executeSql(`update ${SCHEMA_NAME} set isCompleted=? where id=?`, [
+        isCompleted,
+        todoId,
+      ]);
     });
+
+    return true;
   } catch (error) {
     handleError(error);
+
+    return false;
   }
 };
 
-const updateTodo = (
-  todoId: number,
-  editedText: string,
-  updateTodoFunc: SetTodosFunc,
-): void => {
+const updateTodo = (todoId: number, editedText: string): boolean => {
   try {
     DBInstance.transaction((tx) => {
-      tx.executeSql(
-        `update ${SCHEMA_NAME} set text=? where id=?`,
-        [editedText, todoId],
-        (_, results) => {
-          if (results.rowsAffected > 0) getAllTodos(updateTodoFunc);
-        },
-      );
+      tx.executeSql(`update ${SCHEMA_NAME} set text=? where id=?`, [
+        editedText,
+        todoId,
+      ]);
     });
+
+    return true;
   } catch (error) {
     handleError(error);
+
+    return false;
   }
 };
 
-const deleteTodo = (todoId: number, deleteTodoFunc: SetTodosFunc): void => {
+const deleteTodo = (todoId: number): boolean => {
   try {
     DBInstance.transaction((tx) => {
-      tx.executeSql(
-        `delete from ${SCHEMA_NAME} where id=?`,
-        [todoId],
-        (_, results) => {
-          if (results.rowsAffected > 0) getAllTodos(deleteTodoFunc);
-        },
-      );
+      tx.executeSql(`delete from ${SCHEMA_NAME} where id=?`, [todoId]);
     });
+
+    return true;
   } catch (error) {
     handleError(error);
+
+    return false;
   }
 };
 
@@ -185,7 +179,7 @@ export const todoResolvers: TodoResolvers = {
   createTodo,
   getAllTodos,
   getTodo,
-  toggleCompletedState,
+  toggleCompleteStatus,
   updateTodo,
   deleteTodo,
 };

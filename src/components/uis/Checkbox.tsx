@@ -6,7 +6,7 @@ import {
   ViewStyle,
 } from 'react-native';
 
-import {SvgCheck} from '../../utils/Icons';
+import {SvgCheck} from '../../utils/icons';
 import styled from '@emotion/native';
 import {ThemeType, useTheme} from '../../providers/ThemeProvider';
 import {theme as themeSet} from '../../theme';
@@ -45,19 +45,17 @@ interface Props {
   backgroundColor?: string;
 }
 
-export const CheckBox: React.FC<Props> = (props: Props) => {
-  const {
-    containerStyle,
-    checkStyle,
-    activeColor,
-    inActiveColor,
-    backgroundColor,
-    text = '',
-    textStyle,
-    isChecked = false,
-    onToggle,
-  } = props;
-
+export const CheckBox: React.FC<Props> = ({
+  containerStyle,
+  checkStyle,
+  activeColor,
+  inActiveColor,
+  backgroundColor,
+  text = '',
+  textStyle,
+  isChecked = false,
+  onToggle,
+}) => {
   const {themeType} = useTheme();
 
   return (

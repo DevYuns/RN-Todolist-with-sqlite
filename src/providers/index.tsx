@@ -5,7 +5,7 @@ import {TodosProvider} from './TodosProvider';
 
 interface Props {
   initialThemeType?: ThemeType;
-  children?: React.ReactElement;
+  children: React.ReactElement;
 }
 
 const RootProvider: React.FC<Props> = ({initialThemeType, children}) => {

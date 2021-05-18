@@ -1,8 +1,8 @@
 import styled from '@emotion/native';
 import React, {useState} from 'react';
 import {Image, TouchableOpacity} from 'react-native';
-import {IC_CLOSE, IC_EDIT} from '../../utils/Icons';
-import {TodoType} from './Todo';
+import {IC_CLOSE, IC_EDIT} from '../../../utils/icons';
+import type {TodoType} from '../../../utils/database';
 
 const Container = styled.View`
   flex: 1;
@@ -35,19 +35,19 @@ const StyledTextInput = styled.TextInput`
 `;
 
 interface Props {
-  text: string;
+  todoText: string;
   onEdit: (item: TodoType, str: string) => void;
   todoItem: TodoType;
   closeModal: () => void;
 }
 
-const ModalScreen: React.FC<Props> = ({
+const EditTodoModal: React.FC<Props> = ({
   closeModal,
-  text,
+  todoText,
   todoItem,
   onEdit,
-}: Props) => {
-  const [editedTodoText, setEditedTodo] = useState<string>(text);
+}) => {
+  const [editedTodoText, setEditedTodo] = useState<string>(todoText);
 
   const handleEdit = (): void => {
     onEdit(todoItem, editedTodoText);
@@ -72,4 +72,4 @@ const ModalScreen: React.FC<Props> = ({
   );
 };
 
-export default ModalScreen;
+export default EditTodoModal;

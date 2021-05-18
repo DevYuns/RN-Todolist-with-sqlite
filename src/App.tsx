@@ -1,25 +1,43 @@
 import React from 'react';
 import RootProvider from './providers';
 import {useFonts} from 'expo-font';
-import RootViewWrapper from './components/RootViewWrapper';
 import {useAssets} from 'expo-asset';
-import Icons from './utils/Icons';
+import icons from './utils/icons';
 import {initFbt} from './utils/fbt';
 import {useTodos} from './providers/TodosProvider';
-import Fonts from './utils/Fonts';
+import fonts from './utils/fonts';
+import AppLoading from 'expo-app-loading';
+import styled from '@emotion/native';
+import {SafeAreaView} from 'react-native-safe-area-context';
+import Home from './components/pages/Home';
 
 initFbt();
 
+const Container = styled(SafeAreaView)`
+  flex: 1;
+  align-self: stretch;
+
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+
+  background: ${({theme}) => theme.background};
+`;
+
 const App: React.FC = () => {
-  const [assets] = useAssets(Icons);
+  const [assets] = useAssets(icons);
 
-  const [fontLoaded] = useFonts(Fonts);
+  const [fontLoaded] = useFonts(fonts);
 
-  const {isDBLoadingCompleted} = useTodos();
+  const {isTodoReady} = useTodos();
 
-  if (!isDBLoadingCompleted || !assets || !fontLoaded) return null;
+  if (!isTodoReady || !assets || !fontLoaded) return <AppLoading />;
 
-  return <RootViewWrapper />;
+  return (
+    <Container>
+      <Home />
+    </Container>
+  );
 };
 
 const RootApp: React.FC = () => {

@@ -58,18 +58,22 @@ const TodosProvider: React.FC<Props> = ({children}) => {
 
   const createTodo = (todoText: string): void => {
     if (todoResolvers.createTodo(todoText)) getNewTodos();
+    else handleError('Can not create todo');
   };
 
   const toggleCompleteStatus = (todoId: number, newState: boolean): void => {
     if (todoResolvers.toggleCompleteStatus(todoId, newState)) getNewTodos();
+    else handleError('Can not toggle status');
   };
 
   const updateTodos = (todoId: number, newText: string): void => {
     if (todoResolvers.updateTodo(todoId, newText)) getNewTodos();
+    else handleError('Can not update todo');
   };
 
   const deleteTodo = (todoId: number): void => {
     if (todoResolvers.deleteTodo(todoId)) getNewTodos();
+    else handleError('Can not delete todo');
   };
 
   const TodosContext = {

@@ -31,7 +31,7 @@ const setupDatabaseAsync = (): Promise<void> => {
         );
       },
       () => {
-        reject();
+        reject('Fail to create a todo table');
       },
       () => {
         resolve();
@@ -47,7 +47,7 @@ const dropDatabaseTablesAsync = (): Promise<void> => {
         tx.executeSql(`drop table ${SCHEMA_NAME}`);
       },
       () => {
-        reject();
+        reject('Fail to drop a todo table');
       },
       () => {
         resolve();
@@ -72,7 +72,7 @@ const getAllTodos = (): Promise<TodoType[] | undefined> => {
         );
       },
       () => {
-        reject();
+        reject('Fail to get todos from todos table');
       },
       () => {
         resolve(temp);
@@ -96,7 +96,7 @@ const getTodo = (todoId: number): Promise<TodoType | undefined> => {
         );
       },
       () => {
-        reject();
+        reject('Fail to get todo from todos table');
       },
       () => {
         resolve(todo);

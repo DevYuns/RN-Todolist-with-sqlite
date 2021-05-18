@@ -2,31 +2,30 @@ import * as SQLite from 'expo-sqlite';
 import {DB_TODOS, SCHEMA_NAME} from '../constants';
 import {handleError} from './handleError';
 
-/* createdAt 과 completedAt 으로 비교해서 완료 비교. 토글을 위해서는 null값으로 줬다가 새로 시간줬다가 하기 */
 export type TodoType = {
   id: number;
   text: string;
   isCompleted: boolean;
 };
 
-export type SetTodosFunc = (results: TodoType[]) => void;
-export type GetTodoFunc = (todo: TodoType) => void;
+export type SetTodosType = (results: TodoType[]) => void;
+export type GetTodoType = (todo: TodoType) => void;
 
 export interface TodoResolvers {
-  getAllTodos: (getAllTodosFunc: SetTodosFunc) => void;
-  getTodo: (id: number, getTodoFunc: GetTodoFunc) => void;
-  createTodo: (text: string, createTodoFunc: SetTodosFunc) => void;
+  getAllTodos: (getAllTodosFunc: SetTodosType) => void;
+  getTodo: (id: number, getTodoFunc: GetTodoType) => void;
+  createTodo: (text: string, createTodoFunc: SetTodosType) => void;
   updateTodo: (
     id: number,
     editedText: string,
-    updateTodoFunc: SetTodosFunc,
+    updateTodoFunc: SetTodosType,
   ) => void;
   toggleCompletedState: (
     id: number,
     isCompleted: boolean,
-    toggleTodoFunc: SetTodosFunc,
+    toggleTodoFunc: SetTodosType,
   ) => void;
-  deleteTodo: (id: number, deleteTodoFunc: SetTodosFunc) => void;
+  deleteTodo: (id: number, deleteTodoFunc: SetTodosType) => void;
 
   dropDatabaseTablesAsync: () => Promise<void>;
   setupDatabaseAsync: () => Promise<void>;
@@ -68,7 +67,7 @@ const dropDatabaseTablesAsync = async (): Promise<void> => {
   });
 };
 
-const getAllTodos = (getAllTodosFunc: SetTodosFunc): void => {
+const getAllTodos = (getAllTodosFunc: SetTodosType): void => {
   try {
     DBInstance.transaction((tx) => {
       tx.executeSql(
@@ -89,7 +88,7 @@ const getAllTodos = (getAllTodosFunc: SetTodosFunc): void => {
   }
 };
 
-const getTodo = (todoId: number, getTodoFunc: GetTodoFunc): void => {
+const getTodo = (todoId: number, getTodoFunc: GetTodoType): void => {
   try {
     DBInstance.transaction((tx) => {
       tx.executeSql(
@@ -107,7 +106,7 @@ const getTodo = (todoId: number, getTodoFunc: GetTodoFunc): void => {
   }
 };
 
-const createTodo = (todoText: string, createTodoFunc: SetTodosFunc): void => {
+const createTodo = (todoText: string, createTodoFunc: SetTodosType): void => {
   try {
     DBInstance.transaction((tx) => {
       tx.executeSql(
@@ -126,7 +125,7 @@ const createTodo = (todoText: string, createTodoFunc: SetTodosFunc): void => {
 const toggleCompletedState = (
   todoId: number,
   isCompleted: boolean,
-  toggleTodoFunc: SetTodosFunc,
+  toggleTodoFunc: SetTodosType,
 ): void => {
   try {
     DBInstance.transaction((tx) => {
@@ -146,7 +145,7 @@ const toggleCompletedState = (
 const updateTodo = (
   todoId: number,
   editedText: string,
-  updateTodoFunc: SetTodosFunc,
+  updateTodoFunc: SetTodosType,
 ): void => {
   try {
     DBInstance.transaction((tx) => {
@@ -163,7 +162,7 @@ const updateTodo = (
   }
 };
 
-const deleteTodo = (todoId: number, deleteTodoFunc: SetTodosFunc): void => {
+const deleteTodo = (todoId: number, deleteTodoFunc: SetTodosType): void => {
   try {
     DBInstance.transaction((tx) => {
       tx.executeSql(

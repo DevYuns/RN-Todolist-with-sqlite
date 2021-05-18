@@ -1,13 +1,13 @@
 import React, {useEffect, useState} from 'react';
 
 import createCtx from '../utils/createCtx';
-import {TodoType, todoResolvers, SetTodosFunc} from '../utils/database';
+import {TodoType, todoResolvers, SetTodosType} from '../utils/database';
 import {handleError} from '../utils/handleError';
 
 interface Context {
   todos: TodoType[];
   createTodo: (todoText: string) => void;
-  getAllTodos: (getAllTodosFunc: SetTodosFunc) => void;
+  getAllTodos: (getAllTodosFunc: SetTodosType) => void;
   toggleCompletedState: (id: number, isCompleted: boolean) => void;
   updateTodos: (id: number, editedText: string) => void;
   deleteTodo: (id: number) => void;

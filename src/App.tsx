@@ -7,6 +7,7 @@ import Icons from './utils/Icons';
 import {initFbt} from './utils/fbt';
 import {useTodos} from './providers/TodosProvider';
 import Fonts from './utils/Fonts';
+import AppLoading from 'expo-app-loading';
 
 initFbt();
 
@@ -17,7 +18,7 @@ const App: React.FC = () => {
 
   const {isDBLoadingCompleted} = useTodos();
 
-  if (!isDBLoadingCompleted || !assets || !fontLoaded) return null;
+  if (!isDBLoadingCompleted || !assets || !fontLoaded) return <AppLoading />;
 
   return <RootViewWrapper />;
 };

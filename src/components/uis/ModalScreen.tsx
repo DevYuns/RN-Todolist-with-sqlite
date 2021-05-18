@@ -2,7 +2,7 @@ import styled from '@emotion/native';
 import React, {useState} from 'react';
 import {Image, TouchableOpacity} from 'react-native';
 import {IC_CLOSE, IC_EDIT} from '../../utils/Icons';
-import {TodoType} from './Todo';
+import type {TodoType} from '../../utils/database';
 
 const Container = styled.View`
   flex: 1;

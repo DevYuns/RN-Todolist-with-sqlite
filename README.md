@@ -8,7 +8,7 @@
 - [typescript](https://github.com/Microsoft/TypeScript)
 - [emotion](https://emotion.sh/docs/introduction)
 - [expo-sqlite](https://docs.expo.io/versions/latest/sdk/sqlite/)
-- [fbt](https://github.com/facebook/fbt)
+- [i18n](http://i18njs.com/#fun_with_pluralisation)
 
 
 ## Folder structure

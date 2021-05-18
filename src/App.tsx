@@ -3,15 +3,12 @@ import RootProvider from './providers';
 import {useFonts} from 'expo-font';
 import {useAssets} from 'expo-asset';
 import icons from './utils/icons';
-import {initFbt} from './utils/fbt';
 import {useTodos} from './providers/TodosProvider';
 import fonts from './utils/fonts';
 import AppLoading from 'expo-app-loading';
 import styled from '@emotion/native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import Home from './components/pages/Home';
-
-initFbt();
 
 const Container = styled(SafeAreaView)`
   flex: 1;

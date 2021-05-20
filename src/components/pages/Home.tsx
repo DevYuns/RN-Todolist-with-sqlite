@@ -58,12 +58,12 @@ const StyledTextInput = styled.TextInput`
 const AddButton = styled.Image``;
 
 const TodoListWrapper = styled.View`
-  width: 300px;
+  width: 400px;
   margin-top: 40px;
 `;
 
 const TodoListTitle = styled.Text`
-  font-size: 18px;
+  font-size: 22px;
   line-height: 25px;
   margin-bottom: 20px;
   font-family: ChauPhilomeneOne;
@@ -74,6 +74,7 @@ const Home: React.FC = () => {
   const [todoText, setTodoText] = useState<string>('');
 
   const {changeThemeType, themeType} = useTheme();
+  const todoMap = new Map();
 
   const {
     todos,
@@ -91,8 +92,12 @@ const Home: React.FC = () => {
     setTodoText('');
   };
 
-  const handleDelete = (item: TodoType): void => {
+  const handleDelete = (item: TodoType, idx: number): void => {
     const onDeleteItem = todos.filter((el) => el.id === item.id);
+
+    [...todoMap.entries()].forEach(([key, ref]) => {
+      if (ref && key !== idx) ref.close();
+    });
 
     deleteTodo(onDeleteItem[0].id);
   };
@@ -142,12 +147,14 @@ const Home: React.FC = () => {
             paddingHorizontal: 16,
           }}
           data={todos}
-          renderItem={({item}) => (
+          renderItem={({item, index}) => (
             <TodoItem
+              todoMap={todoMap}
+              todoIdx={index}
               todoItem={item}
               toggleComplete={() => toggleComplete(item)}
               onEdit={handleEdit}
-              onDelete={() => handleDelete(item)}
+              onDelete={() => handleDelete(item, index)}
             />
           )}
         />

@@ -1,20 +1,21 @@
 import styled from '@emotion/native';
 import React, {useState} from 'react';
-import {Image, Modal, TouchableOpacity} from 'react-native';
-import {IC_TRASH, IC_TRASH_BLACK} from '../../../utils/icons';
+import {Modal, TouchableOpacity, Animated} from 'react-native';
 import {CheckBox} from '../Checkbox';
 import EditTodoModal from './EditTodoModal';
 import type {TodoType} from '../../../utils/database';
-import {ThemeType, useTheme} from '../../../providers/ThemeProvider';
+import {Swipeable} from 'react-native-gesture-handler';
 
 const Container = styled.View`
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
 
-  width: 280px;
-  height: 30px;
+  width: 350px;
+  height: 50px;
   margin-top: 5px;
+
+  padding: 10px;
 `;
 
 const ListText = styled.Text<{done: boolean}>`
@@ -33,9 +34,17 @@ const LeftWrapper = styled.View`
   overflow: hidden;
 `;
 
-const RightWrapper = styled.TouchableOpacity``;
+const StyledAnimatedView = styled(Animated.View)`
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+  width: 60px;
+  background-color: ${({theme}) => theme.delete};
+`;
 
 interface Props {
+  todoIdx: number;
+  todoMap: Map<number, Swipeable>;
   todoItem: TodoType;
   toggleComplete: () => void;
   onEdit: (item: TodoType, str: string) => void;
@@ -43,6 +52,8 @@ interface Props {
 }
 
 const TodoItem: React.FC<Props> = ({
+  todoIdx,
+  todoMap,
   todoItem,
   toggleComplete,
   onEdit: handleEdit,
@@ -50,10 +61,35 @@ const TodoItem: React.FC<Props> = ({
 }) => {
   const [isModalVisible, setModalVisible] = useState<boolean>(false);
 
-  const {themeType} = useTheme();
+  const renderSwipeBtn = (
+    dragX: Animated.AnimatedInterpolation,
+  ): React.ReactElement => {
+    const scale = dragX.interpolate({
+      inputRange: [-100, 0],
+      outputRange: [1, 0.9],
+      extrapolate: 'clamp',
+    });
+
+    const opacity = dragX.interpolate({
+      inputRange: [-100, -20, 0],
+      outputRange: [1, 0.9, 0],
+      extrapolate: 'clamp',
+    });
+
+    return (
+      <TouchableOpacity onPress={handleDelete}>
+        <StyledAnimatedView style={{opacity}}>
+          <Animated.Text
+            style={{color: 'white', fontWeight: '800', transform: [{scale}]}}>
+            Delete
+          </Animated.Text>
+        </StyledAnimatedView>
+      </TouchableOpacity>
+    );
+  };
 
   return (
-    <Container>
+    <>
       <Modal
         animationType="fade"
         visible={isModalVisible}
@@ -66,22 +102,31 @@ const TodoItem: React.FC<Props> = ({
           onEdit={handleEdit}
         />
       </Modal>
-      <LeftWrapper>
-        <CheckBox isChecked={todoItem.isCompleted} onToggle={toggleComplete} />
-        <TouchableOpacity onPress={() => setModalVisible((prev) => !prev)}>
-          <ListText numberOfLines={1} done={todoItem.isCompleted}>
-            {todoItem.text}
-          </ListText>
-        </TouchableOpacity>
-      </LeftWrapper>
-      <RightWrapper onPress={handleDelete}>
-        <Image
-          source={themeType === ThemeType.LIGHT ? IC_TRASH : IC_TRASH_BLACK}
-          width={15}
-          height={15}
-        />
-      </RightWrapper>
-    </Container>
+      <Swipeable
+        ref={(ref) => {
+          if (ref && !todoMap.get(todoIdx)) todoMap.set(todoIdx, ref);
+        }}
+        renderRightActions={(_, dragX) => renderSwipeBtn(dragX)}
+        onSwipeableWillOpen={() => {
+          [...todoMap.entries()].forEach(([key, ref]) => {
+            if (ref && key !== todoIdx) ref.close();
+          });
+        }}>
+        <Container>
+          <LeftWrapper>
+            <CheckBox
+              isChecked={todoItem.isCompleted}
+              onToggle={toggleComplete}
+            />
+            <TouchableOpacity onPress={() => setModalVisible((prev) => !prev)}>
+              <ListText numberOfLines={1} done={todoItem.isCompleted}>
+                {todoItem.text}
+              </ListText>
+            </TouchableOpacity>
+          </LeftWrapper>
+        </Container>
+      </Swipeable>
+    </>
   );
 };
 

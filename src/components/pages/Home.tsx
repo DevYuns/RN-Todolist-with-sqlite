@@ -84,6 +84,8 @@ const Home: React.FC = () => {
     updateTodos,
   } = useTodos();
 
+  console.log(todos);
+
   const handleInsert = (): void => {
     if (todoText === '') return;
 

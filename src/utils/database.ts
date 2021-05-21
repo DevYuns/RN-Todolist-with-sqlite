@@ -6,6 +6,9 @@ export type TodoType = {
   id: number;
   text: string;
   isCompleted: boolean;
+  isHighlighted: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 };
 
 export interface TodoResolvers {
@@ -13,8 +16,10 @@ export interface TodoResolvers {
   getTodo: (id: number) => Promise<TodoType | undefined>;
   createTodo: (text: string) => boolean;
   updateTodo: (id: number, editedText: string) => boolean;
-  toggleCompleteStatus: (id: number, isCompleted: boolean) => boolean;
   deleteTodo: (id: number) => boolean;
+
+  toggleCompleteStatus: (id: number, isCompleted: boolean) => boolean;
+  toggleHighlightStatus: (id: number, isHighlighted: boolean) => boolean;
 
   dropDatabaseTablesAsync: () => Promise<void>;
   setupDatabaseAsync: () => Promise<void>;
@@ -27,7 +32,15 @@ const setupDatabaseAsync = (): Promise<void> => {
     DBInstance.transaction(
       (tx) => {
         tx.executeSql(
-          `create table if not exists ${SCHEMA_NAME} (id integer primary key autoincrement not null, text varchar(255), isCompleted bool)`,
+          `create table if not exists ${SCHEMA_NAME} 
+            (
+              id integer primary key autoincrement not null,
+              text varchar(255), 
+              isCompleted integer default 0, 
+              isHighlighted integer default 0,
+              createdAt datetime default (datetime('now', 'localtime')),
+              updatedAt datetime default (datetime('now', 'localtime'))
+            )`,
         );
       },
       () => {
@@ -108,10 +121,7 @@ const getTodo = (todoId: number): Promise<TodoType | undefined> => {
 const createTodo = (todoText: string): boolean => {
   try {
     DBInstance.transaction((tx) => {
-      tx.executeSql(
-        `insert into ${SCHEMA_NAME} (text, isCompleted) values (?, ?)`,
-        [todoText, false],
-      );
+      tx.executeSql(`insert into ${SCHEMA_NAME} (text) values (?)`, [todoText]);
     });
 
     return true;
@@ -142,13 +152,33 @@ const toggleCompleteStatus = (
   }
 };
 
+const toggleHighlightStatus = (
+  todoId: number,
+  isHighlighted: boolean,
+): boolean => {
+  try {
+    DBInstance.transaction((tx) => {
+      tx.executeSql(`update ${SCHEMA_NAME} set isHighlighted=? where id=?`, [
+        isHighlighted,
+        todoId,
+      ]);
+    });
+
+    return true;
+  } catch (error) {
+    handleError(error);
+
+    return false;
+  }
+};
+
 const updateTodo = (todoId: number, editedText: string): boolean => {
   try {
     DBInstance.transaction((tx) => {
-      tx.executeSql(`update ${SCHEMA_NAME} set text=? where id=?`, [
-        editedText,
-        todoId,
-      ]);
+      tx.executeSql(
+        `update ${SCHEMA_NAME} set text=?, updatedAt=datetime('now', 'localtime') where id=?`,
+        [editedText, todoId],
+      );
     });
 
     return true;
@@ -179,7 +209,8 @@ export const todoResolvers: TodoResolvers = {
   createTodo,
   getAllTodos,
   getTodo,
-  toggleCompleteStatus,
   updateTodo,
   deleteTodo,
+  toggleCompleteStatus,
+  toggleHighlightStatus,
 };

@@ -8,6 +8,7 @@ interface Context {
   todos: TodoType[];
   createTodo: (todoText: string) => void;
   toggleCompleteStatus: (id: number, isCompleted: boolean) => void;
+  toggleHighlightStatus: (id: number, isHighlighted: boolean) => void;
   updateTodos: (id: number, editedText: string) => void;
   deleteTodo: (id: number) => void;
   isTodoReady: boolean;
@@ -38,6 +39,7 @@ const TodosProvider: React.FC<Props> = ({children}) => {
   useEffect(() => {
     async function loadDataAsync(): Promise<void> {
       try {
+        await todoResolvers.dropDatabaseTablesAsync();
         await todoResolvers.setupDatabaseAsync();
 
         setDBReady(true);
@@ -66,6 +68,11 @@ const TodosProvider: React.FC<Props> = ({children}) => {
     else handleError('Can not toggle status');
   };
 
+  const toggleHighlightStatus = (todoId: number, newState: boolean): void => {
+    if (todoResolvers.toggleHighlightStatus(todoId, newState)) getNewTodos();
+    else handleError('Can not toggle status');
+  };
+
   const updateTodos = (todoId: number, newText: string): void => {
     if (todoResolvers.updateTodo(todoId, newText)) getNewTodos();
     else handleError('Can not update todo');
@@ -83,6 +90,7 @@ const TodosProvider: React.FC<Props> = ({children}) => {
     updateTodos,
     deleteTodo,
     toggleCompleteStatus,
+    toggleHighlightStatus,
   };
 
   return <Provider value={TodosContext}>{children}</Provider>;

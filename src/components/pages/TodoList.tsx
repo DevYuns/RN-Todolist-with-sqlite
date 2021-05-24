@@ -8,11 +8,12 @@ import {
 import {RouteProp} from '@react-navigation/core';
 import styled from '@emotion/native';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import {IC_ADD, IC_ADD_WHITE, IC_ARROW} from '../../utils/icons';
+import {IC_ADD, IC_ADD_WHITE} from '../../utils/icons';
 import {TodoType, useTodos} from '../../providers/TodosProvider';
 import {TodoItem} from '../uis/Todo';
 import {ThemeType, useTheme} from '../../providers/ThemeProvider';
 import {getString} from '../../../STRINGS';
+import {AntDesign} from '@expo/vector-icons';
 
 const Container = styled(SafeAreaView)`
   flex: 1;
@@ -34,12 +35,12 @@ const Header = styled.TouchableOpacity`
   height: 50px;
 
   margin-bottom: 30px;
-  background: ${({theme}) => theme.background};
 `;
 
 const Title = styled.Text`
   font-size: 22px;
   font-family: ChauPhilomeneOne;
+  color: ${({theme}) => theme.title};
 `;
 
 const TextInputWrapper = styled.View`
@@ -52,7 +53,7 @@ const TextInputWrapper = styled.View`
 const StyledTextInput = styled.TextInput`
   height: 40px;
   width: 268px;
-  color: ${({theme}) => theme.text};
+  color: ${({theme}) => theme.title};
 `;
 
 const TodoListWrapper = styled.View`
@@ -68,7 +69,7 @@ type Props = {
 const TodoList: React.FC<Props> = ({navigation}) => {
   const [todoText, setTodoText] = useState<string>('');
 
-  const {themeType} = useTheme();
+  const {themeType, theme} = useTheme();
 
   const {
     todos,
@@ -119,14 +120,20 @@ const TodoList: React.FC<Props> = ({navigation}) => {
   return (
     <Container>
       <Header onPress={() => navigation.goBack()}>
-        <Image
-          source={IC_ARROW}
-          style={{transform: [{scaleX: -1}], marginLeft: 30, marginRight: 20}}
+        <AntDesign
+          name="arrowleft"
+          size={24}
+          color={themeType === ThemeType.DARK ? 'white' : 'black'}
+          style={{
+            marginLeft: 15,
+            marginRight: 15,
+          }}
         />
         <Title>{getString('MY_LIST')}</Title>
       </Header>
       <TextInputWrapper>
         <StyledTextInput
+          placeholderTextColor={theme.placeholder}
           placeholder={getString('PLACEHOLDER')}
           value={todoText}
           onChangeText={(text) => setTodoText(text)}

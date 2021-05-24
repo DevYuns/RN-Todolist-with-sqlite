@@ -5,6 +5,7 @@ export const colors = {
   turquoise: '#00ADB5',
   pink: '#FC5185',
   dark: '#222831',
+  yellow: '#EAD732',
   light_blue: '#DAF2FF',
   dark_blue: '#364F6B',
 };
@@ -15,11 +16,12 @@ export enum ThemeType {
 }
 
 export const light = {
-  background: colors.light_blue,
+  background: colors.grey_10,
   header: colors.turquoise,
-  listCard: colors.grey_20,
+  listCard: colors.light_blue,
+  title: colors.dark,
   text: colors.dark,
-  placeholder: colors.grey_20,
+  placeholder: colors.grey_40,
   border: colors.dark,
   warning: colors.pink,
   icon: colors.turquoise,
@@ -27,10 +29,11 @@ export const light = {
 
 export const dark = {
   background: colors.dark_blue,
-  header: colors.turquoise,
+  header: colors.light_blue,
   listCard: colors.grey_20,
-  text: colors.grey_20,
-  placeholder: colors.grey_20,
+  title: colors.grey_20,
+  text: colors.dark,
+  placeholder: colors.grey_10,
   border: colors.grey_20,
   warning: colors.pink,
   icon: colors.turquoise,

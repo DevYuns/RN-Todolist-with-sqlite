@@ -1,16 +1,17 @@
 import styled from '@emotion/native';
 import {RouteProp} from '@react-navigation/core';
 import React from 'react';
-import {FlatList, Image, Keyboard} from 'react-native';
+import {FlatList, Keyboard} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {getString} from '../../../STRINGS';
 import {TodoType, useTodos} from '../../providers/TodosProvider';
-import {IC_ARROW} from '../../utils/icons';
+import {AntDesign} from '@expo/vector-icons';
 import {
   RootStackNavigatorProps,
   RootStackParamList,
 } from '../navigations/RootStackNavigator';
 import {TodoItem} from '../uis/Todo';
+import {ThemeType, useTheme} from '../../providers/ThemeProvider';
 
 const Container = styled(SafeAreaView)`
   flex: 1;
@@ -38,6 +39,7 @@ const Header = styled.TouchableOpacity`
 const Title = styled.Text`
   font-size: 22px;
   font-family: ChauPhilomeneOne;
+  color: ${({theme}) => theme.title};
 `;
 
 const TodoListWrapper = styled.View`
@@ -58,6 +60,8 @@ const HighlightedList: React.FC<Props> = ({navigation}) => {
     updateTodos,
     deleteTodo,
   } = useTodos();
+
+  const {themeType} = useTheme();
 
   const toggleComplete = (item: TodoType): void => {
     const onCompletedItem = highlightedTodos.filter((el) => el.id === item.id);
@@ -94,9 +98,14 @@ const HighlightedList: React.FC<Props> = ({navigation}) => {
   return (
     <Container>
       <Header onPress={() => navigation.goBack()}>
-        <Image
-          source={IC_ARROW}
-          style={{transform: [{scaleX: -1}], marginLeft: 30, marginRight: 20}}
+        <AntDesign
+          name="arrowleft"
+          size={24}
+          color={themeType === ThemeType.DARK ? 'white' : 'black'}
+          style={{
+            marginLeft: 15,
+            marginRight: 15,
+          }}
         />
         <Title>{getString('HIGHLIGHT_LIST')}</Title>
       </Header>

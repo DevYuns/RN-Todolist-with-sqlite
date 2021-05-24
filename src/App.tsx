@@ -6,20 +6,8 @@ import icons from './utils/icons';
 import {useTodos} from './providers/TodosProvider';
 import fonts from './utils/fonts';
 import AppLoading from 'expo-app-loading';
-import styled from '@emotion/native';
-import {SafeAreaView} from 'react-native-safe-area-context';
-import Home from './components/pages/Home';
 
-const Container = styled(SafeAreaView)`
-  flex: 1;
-  align-self: stretch;
-
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
-
-  background: ${({theme}) => theme.background};
-`;
+import RootNavigator from './components/navigations/RootStackNavigator';
 
 const App: React.FC = () => {
   const [assets] = useAssets(icons);
@@ -30,11 +18,7 @@ const App: React.FC = () => {
 
   if (!isTodoReady || !assets || !fontLoaded) return <AppLoading />;
 
-  return (
-    <Container>
-      <Home />
-    </Container>
-  );
+  return <RootNavigator />;
 };
 
 const RootApp: React.FC = () => {

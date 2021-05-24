@@ -6,6 +6,7 @@ import {handleError} from '../utils/handleError';
 
 interface Context {
   todos: TodoType[];
+  highlightedTodos: TodoType[];
   createTodo: (todoText: string) => void;
   toggleCompleteStatus: (id: number, isCompleted: boolean) => void;
   toggleHighlightStatus: (id: number, isHighlighted: boolean) => void;
@@ -22,24 +23,31 @@ interface Props {
 
 const TodosProvider: React.FC<Props> = ({children}) => {
   const [todos, setTodos] = useState<TodoType[]>([]);
+  const [highlightedTodos, setHighlightedTodos] = useState<TodoType[]>([]);
 
   const [isDBReady, setDBReady] = useState<boolean>(false);
   const [isTodoReady, setTodoReady] = useState<boolean>(false);
 
   const getNewTodos = async (): Promise<void> => {
-    let temp: TodoType[] = [];
+    const todoTemp: TodoType[] = [];
+    const highlightedTemp: TodoType[] = [];
 
     await todoResolvers.getAllTodos().then((results) => {
-      if (results) temp.push(...results);
+      results?.map((item) => {
+        if (item.isHighlighted) highlightedTemp.push(item);
+      });
+
+      if (results) todoTemp.push(...results);
     });
 
-    setTodos(temp);
+    setTodos(todoTemp);
+    setHighlightedTodos(highlightedTemp);
   };
 
   useEffect(() => {
     async function loadDataAsync(): Promise<void> {
       try {
-        await todoResolvers.dropDatabaseTablesAsync();
+        // await todoResolvers.dropDatabaseTablesAsync();
         await todoResolvers.setupDatabaseAsync();
 
         setDBReady(true);
@@ -86,6 +94,7 @@ const TodosProvider: React.FC<Props> = ({children}) => {
   const TodosContext = {
     isTodoReady,
     todos,
+    highlightedTodos,
     createTodo,
     updateTodos,
     deleteTodo,

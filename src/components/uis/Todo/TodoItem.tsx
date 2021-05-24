@@ -1,132 +1,149 @@
 import styled from '@emotion/native';
 import React, {useState} from 'react';
-import {Modal, TouchableOpacity, Animated} from 'react-native';
+import {TouchableOpacity} from 'react-native';
 import {CheckBox} from '../Checkbox';
-import EditTodoModal from './EditTodoModal';
 import type {TodoType} from '../../../utils/database';
-import {Swipeable} from 'react-native-gesture-handler';
+import {colors} from '../../../theme';
+import {AntDesign} from '@expo/vector-icons';
 
-const Container = styled.View`
+const Container = styled.TouchableOpacity`
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
 
   width: 350px;
   height: 50px;
-  margin-top: 5px;
 
   padding: 10px;
-`;
+  margin-top: 5px;
+  margin-bottom: 10px;
 
-const ListText = styled.Text<{done: boolean}>`
-  font-size: 16px;
-  font-family: ChauPhilomeneOne;
-  color: ${({theme}) => theme.subText};
-
-  margin-left: 10px;
-  text-decoration-line: ${({done}) => (done ? 'line-through' : null)};
+  border-radius: 10px;
+  background-color: ${({theme}) => theme.background};
+  box-shadow: 1px 1px 1px lightgray;
 `;
 
 const LeftWrapper = styled.View`
   flex-direction: row;
   align-items: center;
 
+  width: 280px;
+`;
+
+const EditModeWrapper = styled.View`
+  flex-direction: row;
+  justify-content: space-between;
+  height: 20px;
+  width: 280px;
+  border-bottom-width: 1px;
+  border-color: black;
+`;
+
+const EditTextWrapper = styled.View`
+  width: 240px;
   overflow: hidden;
 `;
 
-const StyledAnimatedView = styled(Animated.View)`
-  flex: 1;
-  justify-content: center;
-  align-items: center;
-  width: 60px;
-  background-color: ${({theme}) => theme.delete};
+const EditText = styled.TextInput``;
+
+const ListTextWrapper = styled.View`
+  width: 240px;
+  overflow: hidden;
+`;
+
+const ListText = styled.Text<{done: boolean}>`
+  font-size: 16px;
+  font-family: ChauPhilomeneOne;
+  color: ${({theme, done}) => (done ? colors.grey_40 : theme.text)};
+
+  margin-left: 10px;
+  text-decoration-line: ${({done}) => (done ? 'line-through' : null)};
 `;
 
 interface Props {
-  todoIdx: number;
-  todoMap: Map<number, Swipeable>;
   todoItem: TodoType;
-  toggleComplete: () => void;
-  onEdit: (item: TodoType, str: string) => void;
-  onDelete: () => void;
+  toggleComplete?: () => void;
+  toggleHighlight?: () => void;
+  onEdit?: (item: TodoType, str: string) => void;
+  onDelete?: () => void;
 }
 
 const TodoItem: React.FC<Props> = ({
-  todoIdx,
-  todoMap,
   todoItem,
   toggleComplete,
-  onEdit: handleEdit,
-  onDelete: handleDelete,
+  toggleHighlight,
+  onEdit,
+  onDelete,
 }) => {
-  const [isModalVisible, setModalVisible] = useState<boolean>(false);
+  const [editedText, setEditedText] = useState<string>(todoItem.text);
+  const [isEditVisible, setEditVisible] = useState<boolean>(false);
+  const [isDeleteVisible, setDeleteVisible] = useState<boolean>(false);
 
-  const renderSwipeBtn = (
-    dragX: Animated.AnimatedInterpolation,
-  ): React.ReactElement => {
-    const scale = dragX.interpolate({
-      inputRange: [-100, 0],
-      outputRange: [1, 0.9],
-      extrapolate: 'clamp',
-    });
+  const hadleOnLongPress = (): void => {
+    setDeleteVisible(true);
+  };
 
-    const opacity = dragX.interpolate({
-      inputRange: [-100, -20, 0],
-      outputRange: [1, 0.9, 0],
-      extrapolate: 'clamp',
-    });
+  const handleEdit = (): void => {
+    if (editedText === '') {
+      setEditedText(todoItem.text);
+      setEditVisible(false);
 
-    return (
-      <TouchableOpacity onPress={handleDelete}>
-        <StyledAnimatedView style={{opacity}}>
-          <Animated.Text
-            style={{color: 'white', fontWeight: '800', transform: [{scale}]}}>
-            Delete
-          </Animated.Text>
-        </StyledAnimatedView>
-      </TouchableOpacity>
-    );
+      return;
+    }
+
+    if (onEdit) onEdit(todoItem, editedText);
+
+    setEditVisible(false);
+  };
+
+  const handleDelete = (): void => {
+    if (onDelete) onDelete();
+
+    setDeleteVisible(false);
   };
 
   return (
-    <>
-      <Modal
-        animationType="fade"
-        visible={isModalVisible}
-        onRequestClose={() => setModalVisible((prev) => !prev)}
-        transparent={true}>
-        <EditTodoModal
-          closeModal={() => setModalVisible((prev) => !prev)}
-          todoText={todoItem.text}
-          todoItem={todoItem}
-          onEdit={handleEdit}
-        />
-      </Modal>
-      <Swipeable
-        ref={(ref) => {
-          if (ref && !todoMap.get(todoIdx)) todoMap.set(todoIdx, ref);
-        }}
-        renderRightActions={(_, dragX) => renderSwipeBtn(dragX)}
-        onSwipeableWillOpen={() => {
-          [...todoMap.entries()].forEach(([key, ref]) => {
-            if (ref && key !== todoIdx) ref.close();
-          });
-        }}>
-        <Container>
-          <LeftWrapper>
-            <CheckBox
-              isChecked={todoItem.isCompleted}
-              onToggle={toggleComplete}
-            />
-            <TouchableOpacity onPress={() => setModalVisible((prev) => !prev)}>
+    <Container onLongPress={() => hadleOnLongPress()}>
+      <LeftWrapper>
+        <CheckBox isChecked={todoItem.isCompleted} onToggle={toggleComplete} />
+
+        {isEditVisible ? (
+          <EditModeWrapper>
+            <EditTextWrapper>
+              <EditText
+                value={editedText}
+                onChangeText={(newText) => setEditedText(newText)}
+              />
+            </EditTextWrapper>
+            <TouchableOpacity onPress={() => handleEdit()}>
+              <AntDesign name="edit" size={24} color="black" />
+            </TouchableOpacity>
+          </EditModeWrapper>
+        ) : (
+          <TouchableOpacity onPress={() => setEditVisible(true)}>
+            <ListTextWrapper>
               <ListText numberOfLines={1} done={todoItem.isCompleted}>
                 {todoItem.text}
               </ListText>
-            </TouchableOpacity>
-          </LeftWrapper>
-        </Container>
-      </Swipeable>
-    </>
+            </ListTextWrapper>
+          </TouchableOpacity>
+        )}
+      </LeftWrapper>
+      {!isDeleteVisible && !isEditVisible ? (
+        <TouchableOpacity onPress={toggleHighlight}>
+          {todoItem.isHighlighted ? (
+            <AntDesign name="star" size={24} color="yellow" />
+          ) : (
+            <AntDesign name="staro" size={24} color="black" />
+          )}
+        </TouchableOpacity>
+      ) : null}
+      {isDeleteVisible ? (
+        <TouchableOpacity onPress={handleDelete}>
+          <AntDesign name="delete" size={24} color="black" />
+        </TouchableOpacity>
+      ) : null}
+    </Container>
   );
 };
 

@@ -1,23 +1,12 @@
 export const colors = {
-  light: '#ffffff',
-  dark: '#151A25',
-  backgroundDark: '#151E22',
-  deepDark: '#000000',
-  red: '#D85963',
-  blue_80: '#2F38C7',
-  blue_70: '#1E6EFA',
-  blue_60: '#217DFE',
-  paleBlue_10: '#8bc9ff',
-  paleBlue_05: '#e2f2ff',
-  green_30: '#00D4AB',
-  green_10: '#A1EEDB',
-  gray_80: '#676c7a',
-  gray_70: '#545966',
-  gray_60: '#676c7a',
-  gray_50: '#8f94a3',
-  gray_40: '#AFB4C3',
-  gray_30: '#d3d8e8',
-  gray_05: '#f3f9ff',
+  grey_10: '#F6F6F6',
+  grey_20: '#F0F0F0',
+  grey_40: '#D2D2D2',
+  turquoise: '#00ADB5',
+  pink: '#FC5185',
+  dark: '#222831',
+  light_blue: '#DAF2FF',
+  dark_blue: '#364F6B',
 };
 
 export enum ThemeType {
@@ -26,23 +15,25 @@ export enum ThemeType {
 }
 
 export const light = {
-  background: colors.light,
-  titleText: colors.dark,
-  subText: colors.blue_70,
-  placeholder: colors.gray_60,
-  icon: colors.blue_60,
-  border: colors.blue_70,
-  delete: colors.red,
+  background: colors.light_blue,
+  header: colors.turquoise,
+  listCard: colors.grey_20,
+  text: colors.dark,
+  placeholder: colors.grey_20,
+  border: colors.dark,
+  warning: colors.pink,
+  icon: colors.turquoise,
 };
 
 export const dark = {
-  background: colors.deepDark,
-  titleText: colors.light,
-  subText: colors.paleBlue_10,
-  placeholder: colors.gray_50,
-  icon: colors.paleBlue_10,
-  border: colors.paleBlue_10,
-  delete: colors.red,
+  background: colors.dark_blue,
+  header: colors.turquoise,
+  listCard: colors.grey_20,
+  text: colors.grey_20,
+  placeholder: colors.grey_20,
+  border: colors.grey_20,
+  warning: colors.pink,
+  icon: colors.turquoise,
 };
 
 export type DefautTheme = typeof light;

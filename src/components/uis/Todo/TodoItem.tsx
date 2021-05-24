@@ -3,8 +3,9 @@ import React, {useState} from 'react';
 import {TouchableOpacity} from 'react-native';
 import {CheckBox} from '../Checkbox';
 import type {TodoType} from '../../../utils/database';
-import {colors} from '../../../theme';
-import {AntDesign} from '@expo/vector-icons';
+import {colors, ThemeType} from '../../../theme';
+import {AntDesign, Feather} from '@expo/vector-icons';
+import {useTheme} from '../../../providers/ThemeProvider';
 
 const Container = styled.TouchableOpacity`
   flex-direction: row;
@@ -19,7 +20,7 @@ const Container = styled.TouchableOpacity`
   margin-bottom: 10px;
 
   border-radius: 10px;
-  background-color: ${({theme}) => theme.background};
+  background-color: ${({theme}) => theme.listCard};
   box-shadow: 1px 1px 1px lightgray;
 `;
 
@@ -35,13 +36,15 @@ const EditModeWrapper = styled.View`
   justify-content: space-between;
   height: 20px;
   width: 280px;
-  border-bottom-width: 1px;
-  border-color: black;
 `;
 
 const EditTextWrapper = styled.View`
-  width: 240px;
+  width: 250px;
+
+  margin-right: 28px;
   overflow: hidden;
+  border-bottom-width: 1px;
+  border-color: black;
 `;
 
 const EditText = styled.TextInput``;
@@ -53,7 +56,7 @@ const ListTextWrapper = styled.View`
 
 const ListText = styled.Text<{done: boolean}>`
   font-size: 16px;
-  font-family: ChauPhilomeneOne;
+  font-family: RobotoMedium;
   color: ${({theme, done}) => (done ? colors.grey_40 : theme.text)};
 
   margin-left: 10px;
@@ -78,6 +81,8 @@ const TodoItem: React.FC<Props> = ({
   const [editedText, setEditedText] = useState<string>(todoItem.text);
   const [isEditVisible, setEditVisible] = useState<boolean>(false);
   const [isDeleteVisible, setDeleteVisible] = useState<boolean>(false);
+
+  const {themeType} = useTheme();
 
   const hadleOnLongPress = (): void => {
     setDeleteVisible(true);
@@ -116,7 +121,7 @@ const TodoItem: React.FC<Props> = ({
               />
             </EditTextWrapper>
             <TouchableOpacity onPress={() => handleEdit()}>
-              <AntDesign name="edit" size={24} color="black" />
+              <Feather name="edit-2" size={18} color="black" />
             </TouchableOpacity>
           </EditModeWrapper>
         ) : (
@@ -132,7 +137,7 @@ const TodoItem: React.FC<Props> = ({
       {!isDeleteVisible && !isEditVisible ? (
         <TouchableOpacity onPress={toggleHighlight}>
           {todoItem.isHighlighted ? (
-            <AntDesign name="star" size={24} color="yellow" />
+            <AntDesign name="star" size={24} color={colors.yellow} />
           ) : (
             <AntDesign name="staro" size={24} color="black" />
           )}
@@ -140,7 +145,11 @@ const TodoItem: React.FC<Props> = ({
       ) : null}
       {isDeleteVisible ? (
         <TouchableOpacity onPress={handleDelete}>
-          <AntDesign name="delete" size={24} color="black" />
+          <AntDesign
+            name="delete"
+            size={24}
+            color={themeType === ThemeType.DARK ? 'white' : 'black'}
+          />
         </TouchableOpacity>
       ) : null}
     </Container>

@@ -18,3 +18,8 @@ declare module '*.ttf' {
   const content;
   export default content;
 }
+
+declare module 'react-native-switch-toggle' {
+  const content;
+  export default content;
+}

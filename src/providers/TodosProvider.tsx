@@ -57,7 +57,6 @@ const TodosProvider: React.FC<Props> = ({children}) => {
   useEffect(() => {
     async function loadDataAsync(): Promise<void> {
       try {
-        await todoResolvers.dropDatabaseTablesAsync();
         await todoResolvers.setupDatabaseAsync();
 
         setDBReady(true);

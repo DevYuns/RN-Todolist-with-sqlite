@@ -8,5 +8,8 @@
   "TODAY_WORK": "Today's work",
   "PLACEHOLDER": "Add todo",
   "COMPLETED": "Completed",
-  "HIGHLIGHT_LIST": "Highlight list"
+  "HIGHLIGHT_LIST": "Highlight list",
+  "TODO_SUM": "todo count",
+  "EMPTY_TEXT": "Write your todos",
+  "HIGHLIGHT_SUM": "highlighted count"
 }

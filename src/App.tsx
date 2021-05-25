@@ -1,24 +1,20 @@
 import React from 'react';
 import RootProvider from './providers';
 import {useFonts} from 'expo-font';
-import {useAssets} from 'expo-asset';
-import icons from './utils/icons';
 import {useTodos} from './providers/TodosProvider';
 import fonts from './utils/fonts';
 import AppLoading from 'expo-app-loading';
 
-import RootNavigator from './components/navigations/RootStackNavigator';
+import Home from './components/pages/Home';
 
 const App: React.FC = () => {
-  const [assets] = useAssets(icons);
-
   const [fontLoaded] = useFonts(fonts);
 
   const {isTodoReady} = useTodos();
 
-  if (!isTodoReady || !assets || !fontLoaded) return <AppLoading />;
+  if (!isTodoReady || !fontLoaded) return <AppLoading />;
 
-  return <RootNavigator />;
+  return <Home />;
 };
 
 const RootApp: React.FC = () => {

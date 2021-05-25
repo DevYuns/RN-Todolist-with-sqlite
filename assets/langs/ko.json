@@ -1,5 +1,5 @@
 {
-  "TODO_TITLE": "다음 할일은 무엇인가요?",
+  "TODO_TITLE": "다음 할 일은 무엇인가요?",
   "TODO_SUB_TITLE": "해야 할 일",
   "THEME_CHANGE": "테마 변경",
   "ADD_NEW_LIST": "새 목록",
@@ -8,5 +8,8 @@
   "TODAY_WORK": "오늘 할 일",
   "PLACEHOLDER": "할 일 추가",
   "COMPLETED": "완료됨",
-  "HIGHLIGHT_LIST": "중요한 일"
+  "HIGHLIGHT_LIST": "중요한 일",
+  "TODO_SUM": "할 일 목록",
+  "EMPTY_TEXT": "할 일을 작성해보세요.",
+  "HIGHLIGHT_SUM": "중요 목록"
 }

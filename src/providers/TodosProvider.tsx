@@ -30,24 +30,34 @@ const TodosProvider: React.FC<Props> = ({children}) => {
 
   const getNewTodos = async (): Promise<void> => {
     const todoTemp: TodoType[] = [];
-    const highlightedTemp: TodoType[] = [];
 
     await todoResolvers.getAllTodos().then((results) => {
-      results?.map((item) => {
-        if (item.isHighlighted) highlightedTemp.push(item);
-      });
-
       if (results) todoTemp.push(...results);
     });
 
     setTodos(todoTemp);
-    setHighlightedTodos(highlightedTemp);
   };
+
+  useEffect(() => {
+    const temp: TodoType[] = [];
+
+    async function getHighlightedTodos(): Promise<void> {
+      await todoResolvers.getAllTodos().then((results) => {
+        results?.map((el) => {
+          if (el.isHighlighted) temp.push(el);
+        });
+      });
+
+      setHighlightedTodos(temp);
+    }
+
+    getHighlightedTodos();
+  }, [todos]);
 
   useEffect(() => {
     async function loadDataAsync(): Promise<void> {
       try {
-        // await todoResolvers.dropDatabaseTablesAsync();
+        await todoResolvers.dropDatabaseTablesAsync();
         await todoResolvers.setupDatabaseAsync();
 
         setDBReady(true);

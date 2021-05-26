@@ -1,10 +1,15 @@
-## Basic TodoList
+## Simple TodoList
+
+> Gain points
+- How to use local storage with `expo-sqlite`
+- How to make a `themeToggle` with `ThemeProvider`
+- How to use `styled component`
+- How to apply `localization` with `i18n`
 
 > Specification
 
 - [expo](https://expo.io)
 - [react-native](https://github.com/facebook/react-native)
-- [react-navigation](https://github.com/react-navigation/react-navigation)
 - [typescript](https://github.com/Microsoft/TypeScript)
 - [emotion](https://emotion.sh/docs/introduction)
 - [expo-sqlite](https://docs.expo.io/versions/latest/sdk/sqlite/)
